@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Account\ForgotAccountRequest;
 use App\Http\Requests\Account\LoginAccountRequest;
+use App\Http\Requests\Account\ResetAccountRequest;
 use App\Http\Requests\Account\StoreAccountRequest;
+use App\Mail\ResetPassword;
 use App\Mail\VerifyAccount;
 use App\Models\User;
 use Exception;
@@ -103,18 +106,24 @@ class AccountController extends Controller
     public function check_change_password()
     {
     }
-    public function forgot_password()
+    public function check_forgot_password(ForgotAccountRequest $req)
     {
+        $data = $req->only('email');
+        $account = User::where('email', $data)->first();
+        if ($account) {
+            FacadesMail::to($account->email)->send(new ResetPassword($account));
+        }
+        flash()->addError('Tài khoản này không tồn tại.');
+        return redirect()->route('account.login');
+    }
+    public function reset_password(ForgotAccountRequest $req)
+    {
+        return view('login.changepass', $req);
     }
 
-    public function check_forgot_password()
+    public function check_reset_password(ResetAccountRequest $req)
     {
-    }
-    public function reset_password()
-    {
-    }
-
-    public function check_reset_password()
-    {
+        User::where('email', $req->email)->update(['password' => $req->password]);
+        return redirect()->route('account.login');
     }
 }
