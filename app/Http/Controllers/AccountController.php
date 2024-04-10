@@ -94,17 +94,21 @@ class AccountController extends Controller
     }
     public function profile()
     {
+
     }
 
     public function check_profile()
     {
+
     }
     public function change_password()
     {
+        
     }
 
     public function check_change_password()
     {
+
     }
     public function check_forgot_password(ForgotAccountRequest $req)
     {
