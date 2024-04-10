@@ -82,6 +82,7 @@ class AccountController extends Controller
                     'name' => $user->name,
                     'google_id' => $user->google_id,
                     'role' => 0,
+                    'avatar' => 'public/avatar.jpg',
                     'password' => encrypt('123456dummy')
                 ]);
 
@@ -103,7 +104,7 @@ class AccountController extends Controller
     }
     public function change_password()
     {
-        
+
     }
 
     public function check_change_password()
@@ -129,5 +130,9 @@ class AccountController extends Controller
     {
         User::where('email', $req->email)->update(['password' => $req->password]);
         return redirect()->route('account.login');
+    }
+    public function logout(){
+        Auth::logout();
+        return redirect()->back();
     }
 }
