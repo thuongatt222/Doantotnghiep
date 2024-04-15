@@ -39,9 +39,7 @@ class AccountController extends Controller
         return redirect()->route('login');
     }
 
-    public function register()
-    {
-    }
+    
 
     public function check_register(StoreAccountRequest $req)
     {
