@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,9 +15,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    //    return view('Login/index');
-});
 Route::group(['prefix' => 'account'], function () {
     Route::get('verify/{email}', [AccountController::class, 'verify'])->name('account.verify');
     Route::get('login', [AccountController::class, 'login'])->name('account.login');
@@ -34,10 +32,21 @@ Route::group(['prefix' => 'account'], function () {
 });
 Route::get('auth/google', [AccountController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
-Route::get('/admin', function () {
+
+Route::get('admin', function () {
     return view('admin/index');
 })->name('admin');
 
-Route::get('/customer', function () {
-    return view('customer/index');
-})->name('customer');
+Route::group(['prefix' => 'customer'], function () {
+    Route::get('home', [HomeController::class, 'index'])->name('customer.home');
+    Route::get('single-product', function () { return view('customer/single-product'); })->name('customer.single-product');
+    Route::get('blog', function () { return view('customer/blog'); })->name('customer.blog');
+    Route::get('cart', function () { return view('customer/cart'); })->name('customer.cart');
+    Route::get('single-blog', function () { return view('customer/single-blog'); })->name('customer.single-blog');
+    Route::get('tracking', function () { return view('customer/tracking'); })->name('customer.tracking');
+    Route::get('category', function () { return view('customer/category'); })->name('customer.category');
+    Route::get('checkout', function () { return view('customer/checkout'); })->name('customer.checkout');
+    Route::get('contact', function () { return view('customer/contact'); })->name('customer.contact');
+});
+
+

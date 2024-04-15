@@ -24,7 +24,6 @@
             <h1>Tạo tài khoản</h1>
             <div class="social-icons">
                 <a href="{{ route('auth.google') }}" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-                <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
             </div>
             <span>hoặc sử dụng email của bạn</span>
             <input type="text" placeholder="Name" name="name">
@@ -39,7 +38,6 @@
             <h1>Đăng nhập</h1>
             <div class="social-icons">
                 <a href="{{ route('auth.google') }}" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-                <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
             </div>
             <span>hoặc sử dụng email của bạn</span>
             <input type="email" placeholder="Email" name="email">

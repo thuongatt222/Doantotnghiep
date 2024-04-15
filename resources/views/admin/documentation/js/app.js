@@ -202,11 +202,11 @@ app.config(function ($routeProvider) {
         .when('/javascript-options', {
             templateUrl: 'templates/javascript-options.html'
         })
-        .when('/component-card', {
-            templateUrl: 'templates/component-card.html'
+        .when('/layouts-card', {
+            templateUrl: 'templates/layouts-card.html'
         })
-        .when('/component-infobox', {
-            templateUrl: 'templates/component-infobox.html'
+        .when('/layouts-infobox', {
+            templateUrl: 'templates/layouts-infobox.html'
         });
 });
 
