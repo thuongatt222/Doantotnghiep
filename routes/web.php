@@ -33,12 +33,8 @@ Route::group(['prefix' => 'account'], function () {
 Route::get('auth/google', [AccountController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
 
-Route::get('admin', function () {
-    return view('admin/index');
-})->name('admin');
-
 Route::group(['prefix' => 'customer'], function () {
-    Route::get('home', [HomeController::class, 'index'])->name('customer.home');
+    Route::get('home', function () { return view('customer/home'); })->name('customer.home');
     Route::get('single-product', function () { return view('customer/single-product'); })->name('customer.single-product');
     Route::get('blog', function () { return view('customer/blog'); })->name('customer.blog');
     Route::get('cart', function () { return view('customer/cart'); })->name('customer.cart');
@@ -49,4 +45,18 @@ Route::group(['prefix' => 'customer'], function () {
     Route::get('contact', function () { return view('customer/contact'); })->name('customer.contact');
 });
 
-
+Route::group(['prefix' => 'admin'], function () {
+    Route::get('home', function () { return view('admin/home'); })->name('admin.home');
+    Route::get('payment', function () { return view('admin/payment'); })->name('admin.payment');
+    Route::get('shipping', function () { return view('admin/shipping'); })->name('admin.shipping');
+    Route::get('admin', function () { return view('admin/admin'); })->name('admin.admin');
+    Route::get('customer', function () { return view('admin/customer'); })->name('admin.customer');
+    Route::get('brand', function () { return view('admin/brand'); })->name('admin.brand');
+    Route::get('color', function () { return view('admin/color'); })->name('admin.color');
+    Route::get('category', function () { return view('admin/category'); })->name('admin.category');
+    Route::get('discount', function () { return view('admin/discount'); })->name('admin.discount');
+    Route::get('order', function () { return view('admin/order'); })->name('admin.order');
+    Route::get('product', function () { return view('admin/product'); })->name('admin.product');
+    Route::get('size', function () { return view('admin/size'); })->name('admin.size');
+    Route::get('voucher', function () { return view('admin/voucher'); })->name('admin.voucher');
+});

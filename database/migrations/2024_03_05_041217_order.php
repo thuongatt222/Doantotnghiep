@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('shipping_method_id');
             $table->foreign('shipping_method_id')->references('shipping_method_id')->on('shipping_method');
             $table->timestamps();
+            $table->text('note')->nullable();
         });
     }
 

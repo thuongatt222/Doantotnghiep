@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('color_id');
             $table->string('color');
             $table->timestamps();
+            $table->text('note')->nullable();
         });
     }
 

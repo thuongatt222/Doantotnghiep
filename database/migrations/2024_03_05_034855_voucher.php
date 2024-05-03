@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('start_day');
             $table->date('end_day');
             $table->timestamps();
+            $table->text('note')->nullable();
         });
     }
 

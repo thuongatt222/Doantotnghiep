@@ -22,6 +22,7 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id');
             $table->foreign('category_id')->references('category_id')->on('category');
             $table->timestamps();
+            $table->text('note')->nullable();
         });
     }
 

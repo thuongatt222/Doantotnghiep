@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('size_id');
             $table->string('size');
             $table->timestamps();
+            $table->text('note')->nullable();
         });
     }
 

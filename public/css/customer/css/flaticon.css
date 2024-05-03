@@ -5,8 +5,8 @@
 
 	@font-face {
 	    font-family: "Flaticon";
-	    src: url("../../../fonts/Flaticon.eot");
-	    src: url("../../../fonts/Flaticon.eot") format("embedded-opentype"), url("../../../fonts/Flaticon.woff2") format("woff2"), url("../../../fonts/Flaticon.woff") format("woff"), url("../../../fonts/Flaticon.ttf") format("truetype");
+	    src: url("../../../fonts/customer/Flaticon.eot");
+	    src: url("../../../fonts/customer/Flaticon.eot") format("embedded-opentype"), url("../../../fonts/customer/Flaticon.woff2") format("woff2"), url("../../../fonts/customer/Flaticon.woff") format("woff"), url("../../../fonts/customer/Flaticon.ttf") format("truetype");
 	    font-weight: normal;
 	    font-style: normal;
 	}

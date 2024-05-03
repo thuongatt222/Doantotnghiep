@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('shipping_method_id');
             $table->string('shipping_method');
             $table->timestamps();
+            $table->text('note')->nullable();
         });
     }
 

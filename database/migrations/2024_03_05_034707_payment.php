@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('payment_method_id');
             $table->string('payment_method');
             $table->timestamps();
+            $table->text('note')->nullable();
         });
     }
 
