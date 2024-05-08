@@ -22,7 +22,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payments = $this->payment->paginate(5);
+        $payments = $this->payment->all();
         $paymentsResource = PaymentResource::collection($payments)->response()->getData(true);
         return response()->json([
             'data' => $paymentsResource,
@@ -81,12 +81,12 @@ class PaymentController extends Controller
      */
     public function destroy(string $id)
     {
-        $isUsedInOtherTable = Payment::where('payment_method_id', $id)->exists();
-        if ($isUsedInOtherTable) {
-            return response()->json([
-                'error' => 'Phương thức này đã tồn tại trong hóa đơn nên không thể xóa.',
-            ], HttpResponse::HTTP_CONFLICT);
-        }
+//        $isUsedInOtherTable = Payment::where('payment_method_id', $id)->exists();
+//        if ($isUsedInOtherTable) {
+//            return response()->json([
+//                'error' => 'Phương thức này đã tồn tại trong hóa đơn nên không thể xóa.',
+//            ], HttpResponse::HTTP_CONFLICT);
+//        }
         $payment = $this->payment->where('payment_method_id', $id)->firstOrFail();
         $payment->delete();
         $paymentResource = new PaymentResource($payment);
