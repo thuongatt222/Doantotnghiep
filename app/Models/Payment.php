@@ -15,4 +15,5 @@ class Payment extends Model
     ];
     protected $primaryKey = 'payment_method_id';
     protected $table = 'payment_method';
+
 }

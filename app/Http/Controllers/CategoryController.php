@@ -22,7 +22,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categorys = $this->category->paginate(5);
+        $categorys = $this->category->all();
         $categorysResource = CategoryResource::collection($categorys)->response()->getData(true);
         return response()->json([
             'data' => $categorysResource,
@@ -52,9 +52,10 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Category $category)
     {
         //
+        return $category;
     }
 
     /**
@@ -64,7 +65,7 @@ class CategoryController extends Controller
     {
         $category = $this->category->findOrFail($id);
         $dataUpdate = $request->all();
-        $check = Category::where('brand_name', $dataUpdate['brand_name'])->exists();
+        $check = Category::where('category_name', $dataUpdate['category_name'])->exists();
         if ($check) {
             return response()->json([
                 'error' => 'Tên thể loại này đã tồn tại!',
@@ -82,12 +83,12 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        $isUsedInOtherTable = Product::where('category_id', $id)->exists();
-        if ($isUsedInOtherTable) {
-            return response()->json([
-                'error' => 'Thể loại này đang có sản phẩm nên không thể xóa.',
-            ], HttpResponse::HTTP_CONFLICT);
-        }
+//        $isUsedInOtherTable = Product::where('category_id', $id)->exists();
+//        if ($isUsedInOtherTable) {
+//            return response()->json([
+//                'error' => 'Thể loại này đang có sản phẩm nên không thể xóa.',
+//            ], HttpResponse::HTTP_CONFLICT);
+//        }
         $category = $this->category->where('category_id', $id)->firstOrFail();
         $category->delete();
         $categoryResource = new CategoryResource($category);

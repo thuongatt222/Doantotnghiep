@@ -69,7 +69,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Hủy bỏ</button>
-                        <button type="button" class="btn btn-primary" onclick="addPayment()">Thêm mới</button>
+                        <button type="submit" class="btn btn-primary" onclick="addPayment()">Thêm mới</button>
                     </div>
                 </div>
             </div>
@@ -90,12 +90,12 @@
                             @csrf
                             @method('PUT')
                             <div class="col-12">
-                                <label for="inputAddress" class="form-label">Tên phương thức</label>
-                                <input type="text" class="form-control" id="payment_method" name="payment_method_edit"
+                                <label for="payment_method_edit" class="form-label">Tên phương thức</label>
+                                <input type="text" class="form-control" id="payment_method_edit" name="payment_method_edit"
                                        placeholder="Cập nhật tên phương thức thanh toán mới ...">
                             </div>
                             <div class="col-12">
-                                <label for="note" class="form-label">Ghi chú</label>
+                                <label for="note_edit" class="form-label">Ghi chú</label>
                                 <textarea class="form-control" id="note_edit" rows="3" name="note"></textarea>
                             </div>
                         </form>
@@ -120,7 +120,7 @@
                         data.data.data.forEach(payment => {
                             paymentTableBody.innerHTML += `
                         <tr>
-                            <td>${payment.payment_method_id}</td>
+                            <td style="">${payment.payment_method_id}</td>
                             <td>${payment.payment_method}</td>
                             <td>${payment.note ? payment.note : '-'}</td>
                             <td style="text-align: center">
@@ -170,7 +170,7 @@
                     .then(response => response.json())
                     .then(data => {
                         let payment = data.data; // Dữ liệu của phương thức thanh toán cần cập nhật
-                        // Điền dữ liệu vào modal cập nhật
+                        // Điền dữ liệu vào form cập nhật
                         document.getElementById("payment_method_edit").value = payment.payment_method;
                         document.getElementById("note_edit").value = payment.note;
                         // Mở modal cập nhật

@@ -22,7 +22,7 @@ class ColorController extends Controller
      */
     public function index()
     {
-        $colors = $this->color->paginate(5);
+        $colors = $this->color->all();
         $colorsResource = ColorResource::collection($colors)->response()->getData(true);
         return response()->json([
             'data' => $colorsResource,
@@ -52,9 +52,10 @@ class ColorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Color $color)
     {
         //
+        return $color;
     }
 
     /**
@@ -82,12 +83,12 @@ class ColorController extends Controller
      */
     public function destroy(string $id)
     {
-        $isUsedInOtherTable = ProductDetail::where('color_id', $id)->exists();
-        if ($isUsedInOtherTable) {
-            return response()->json([
-                'error' => 'Màu này đang có sản phẩm nên không thể xóa.',
-            ], HttpResponse::HTTP_CONFLICT);
-        }
+//        $isUsedInOtherTable = ProductDetail::where('color_id', $id)->exists();
+//        if ($isUsedInOtherTable) {
+//            return response()->json([
+//                'error' => 'Màu này đang có sản phẩm nên không thể xóa.',
+//            ], HttpResponse::HTTP_CONFLICT);
+//        }
         $color = $this->color->where('color_id', $id)->firstOrFail();
         $color->delete();
         $colorResource = new ColorResource($color);

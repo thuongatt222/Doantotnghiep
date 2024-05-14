@@ -22,7 +22,7 @@ class ShippingController extends Controller
      */
     public function index()
     {
-        $shippings = $this->shipping->paginate(5);
+        $shippings = $this->shipping->all();
         $shippingsResource = ShippingResource::collection($shippings)->response()->getData(true);
         return response()->json([
             'data' => $shippingsResource,
@@ -51,9 +51,10 @@ class ShippingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Shipping $shipping)
     {
         //
+        return $shipping;
     }
 
     /**
@@ -81,12 +82,12 @@ class ShippingController extends Controller
      */
     public function destroy(string $id)
     {
-        $isUsedInOtherTable = Order::where('shipping_method_id', $id)->exists();
-        if ($isUsedInOtherTable) {
-            return response()->json([
-                'error' => 'Phương thức này đã tồn tại trong hóa đơn nên không thể xóa.',
-            ], HttpResponse::HTTP_CONFLICT);
-        }
+//        $isUsedInOtherTable = Order::where('shipping_method_id', $id)->exists();
+//        if ($isUsedInOtherTable) {
+//            return response()->json([
+//                'error' => 'Phương thức này đã tồn tại trong hóa đơn nên không thể xóa.',
+//            ], HttpResponse::HTTP_CONFLICT);
+//        }
         $shipping = $this->shipping->where('shipping_method_id', $id)->firstOrFail();
         $shipping->delete();
         $shippingResource = new ShippingResource($shipping);
