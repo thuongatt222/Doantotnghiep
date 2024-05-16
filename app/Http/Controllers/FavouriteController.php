@@ -34,6 +34,10 @@ class FavouriteController extends Controller
     public function store(StoreFavouriteRequest $request)
     {
         $dataCreate = $request->all();
+        $check = Favourite::where('product_id', $request->product_id)->first();
+        if ($check) {
+            flash()->addWarning('Sản phẩm này đã tồn tại trong danh mục yêu thích');
+        }
         $favourite = $this->favourite->create($dataCreate);
         $favouriteResource = new FavouriteResource($favourite);
         return response()->json([
@@ -53,7 +57,6 @@ class FavouriteController extends Controller
      */
     public function update(UpdateFavouriteRequest $request, string $id)
     {
-        
     }
 
     /**

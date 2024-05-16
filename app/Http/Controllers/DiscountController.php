@@ -34,6 +34,11 @@ class DiscountController extends Controller
     public function store(StoreDiscountRequest $request)
     {
         $dataCreate = $request->all();
+        $check = Discount::where('discount', $request->discount)->first();
+        if($check){
+            flash()->addError('Mã giảm giá này đã tồn tại');
+            return redirect()->back();
+        }
         $discount = $this->discount->create($dataCreate);
         $discountResource = new DiscountResource($discount);
         return response()->json([

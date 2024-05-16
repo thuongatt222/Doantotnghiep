@@ -82,7 +82,8 @@ class ProductController extends Controller
     public function destroy(string $id)
     {
         $isUsedInOtherTable = OrderDetail::where('product_id', $id)->exists();
-        if ($isUsedInOtherTable) {
+        $isUsedInFavouriTable = OrderDetail::where('product_id', $id)->exists();
+        if ($isUsedInOtherTable || $isUsedInFavouriTable) {
             return response()->json([
                 'error' => 'Sản phẩm này đã tồn tại trong hóa đơn nên không thể xóa.',
             ], HttpResponse::HTTP_CONFLICT);

@@ -6,6 +6,7 @@ use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Http\Resources\Order\OrderResource;
 use App\Models\Order;
+use App\Models\OrderDetail;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Http\Request;
 
@@ -74,5 +75,17 @@ class OrderController extends Controller
         return response()->json([
             'data' => $orderResource,
         ], HttpResponse::HTTP_OK);
+    }
+
+    public function profit()
+    {
+        $profit = Order::join('orderdetails', 'orders.id', '=', 'orderdetails.order_id')
+            ->join('products', 'orderdetails.product_id', '=', 'products.id')
+            ->select('orders.total', 'orders.created_at', 'products.name')
+            ->get();
+    }
+
+    public function confOrder(){
+        
     }
 }
