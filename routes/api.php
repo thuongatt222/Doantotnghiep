@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ColorController;
@@ -52,3 +53,16 @@ Route::apiResource('favourite', DiscountController::class)->only('index', 'store
 Route::post('/cart', [OrderDetailController::class, 'cart']);
 Route::delete('/cart/remove', [OrderDetailController::class, 'removeFromCart']);
 Route::get('/cart', [OrderDetailController::class, 'showCart']);
+Route::group([
+
+    'middleware' => 'api',
+    'prefix' => 'auth'
+
+], function ($router) {
+
+    Route::post('login', [AccountController::class, 'login']);
+    Route::post('logout', [AccountController::class, 'logout']);
+    Route::post('refresh', [AccountController::class, 'refresh']);
+    Route::post('me', [AccountController::class, 'me']);
+
+});
