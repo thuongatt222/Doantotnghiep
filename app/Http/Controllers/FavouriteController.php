@@ -7,6 +7,7 @@ use App\Http\Requests\Favourite\UpdateFavouriteRequest;
 use App\Http\Resources\Favourite\FavouriteResource;
 use App\Models\Favourite;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class FavouriteController extends Controller

@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
+use App\Http\Resources\Category\CategoryCollection;
 use App\Http\Resources\Category\CategoryResource;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response as HttpResponse;
 
 class CategoryController extends Controller
@@ -22,11 +24,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categorys = $this->category->all();
-        $categorysResource = CategoryResource::collection($categorys)->response()->getData(true);
-        return response()->json([
-            'data' => $categorysResource,
-        ], HttpResponse::HTTP_OK);
+        $categorysResource = new CategoryCollection(Category::all());
+        return $categorysResource;
     }
 
     /**
@@ -42,11 +41,14 @@ class CategoryController extends Controller
             ], HttpResponse::HTTP_CONFLICT);
         }
         $dataCreate = $request->all();
-        $category = $this->category->create($dataCreate);
-        $categoryResource = new CategoryResource($category);
-        return response()->json([
-            'data' => $categoryResource,
-        ], HttpResponse::HTTP_OK);
+        $category = new Category();
+        $category->category_name = $dataCreate['category_name'];
+        $category->status = $dataCreate['status'];
+        $category->note = $dataCreate['note'];
+        $category->save();
+        return (new CategoryResource($category))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**
@@ -63,19 +65,27 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, string $id)
     {
-        $category = $this->category->findOrFail($id);
-        $dataUpdate = $request->all();
-        $check = Category::where('category_name', $dataUpdate['category_name'])->exists();
-        if ($check) {
+        try {
+            $category = $this->category->findOrFail($id);
+            $dataUpdate = $request->all();
+            $check = Category::where('category_name', $dataUpdate['category_name'])->where('category_id', '!=', $id)->exists();
+            if ($check) {
+                return response()->json([
+                    'error' => 'Tên thể loại này đã tồn tại!',
+                ], HttpResponse::HTTP_CONFLICT);
+            }
+            $category->category_name = $dataUpdate['category_name'];
+            $category->status = $dataUpdate['status'];
+            $category->note = $dataUpdate['note'];
+            $category->save();
+            return (new CategoryResource($category))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Tên thể loại này đã tồn tại!',
-            ], HttpResponse::HTTP_CONFLICT);
+                'error' => 'Thể loại '. $category->category_name. ' không tồn tại'
+            ], HttpResponse::HTTP_NOT_FOUND);
         }
-        $category->update($dataUpdate);
-        $categoryResource = new CategoryResource($category);
-        return response()->json([
-            'data' => $categoryResource,
-        ], HttpResponse::HTTP_OK);
     }
 
     /**
@@ -83,17 +93,22 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-//        $isUsedInOtherTable = Product::where('category_id', $id)->exists();
-//        if ($isUsedInOtherTable) {
-//            return response()->json([
-//                'error' => 'Thể loại này đang có sản phẩm nên không thể xóa.',
-//            ], HttpResponse::HTTP_CONFLICT);
-//        }
-        $category = $this->category->where('category_id', $id)->firstOrFail();
-        $category->delete();
-        $categoryResource = new CategoryResource($category);
-        return response()->json([
-            'data' => $categoryResource,
-        ], HttpResponse::HTTP_OK);
+        $isUsedInOtherTable = Product::where('category_id', $id)->exists();
+        if ($isUsedInOtherTable) {
+            return response()->json([
+                'error' => 'Thể loại này đang có sản phẩm nên không thể xóa.',
+            ], HttpResponse::HTTP_CONFLICT);
+        }
+        try {
+            $category = $this->category->where('category_id', $id)->firstOrFail();
+            $category->delete();
+            return response()->json([
+                'message' => 'Xóa thành công ' . $category->category_name,
+            ], HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Thể loại '. $category->category_name. ' không tồn tại'
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 }

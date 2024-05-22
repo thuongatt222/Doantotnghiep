@@ -29,6 +29,8 @@ class StoreVoucherRequest extends FormRequest
             'quantity' => 'required',
             'start_day' => 'required',
             'end_day' => 'required',
+            'note' => 'nullable|string',
+            'status' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

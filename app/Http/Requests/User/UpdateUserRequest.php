@@ -14,7 +14,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,7 +25,21 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required',
+            'email' => 'required',
+            'password' => 'required',
+            'role' => 'required',
+            'note' => 'nullable|string',
+            'status' => 'required',
+            
         ];
+    }
+    protected function failedValidation(Validator $validator)
+    {
+        $response = new Response([
+            'error' => $validator->errors(),
+
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        throw (new ValidationException($validator, $response));
     }
 }

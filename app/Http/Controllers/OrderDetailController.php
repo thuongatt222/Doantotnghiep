@@ -8,6 +8,7 @@ use App\Http\Resources\OrderDetail\OrderDetailResource;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class OrderDetailController extends Controller

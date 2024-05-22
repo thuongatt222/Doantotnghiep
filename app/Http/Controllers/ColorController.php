@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Color\StoreColorRequest;
 use App\Http\Requests\Color\UpdateColorRequest;
+use App\Http\Resources\Color\ColorCollection;
 use App\Http\Resources\Color\ColorResource;
 use App\Models\Color;
 use App\Models\ProductDetail;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class ColorController extends Controller
@@ -22,11 +24,8 @@ class ColorController extends Controller
      */
     public function index()
     {
-        $colors = $this->color->all();
-        $colorsResource = ColorResource::collection($colors)->response()->getData(true);
-        return response()->json([
-            'data' => $colorsResource,
-        ], HttpResponse::HTTP_OK);
+        $ColorsResource = new ColorCollection(Color::all());
+        return $ColorsResource;
     }
 
     /**
@@ -42,11 +41,14 @@ class ColorController extends Controller
             ], HttpResponse::HTTP_CONFLICT);
         }
         $dataCreate = $request->all();
-        $color = $this->color->create($dataCreate);
-        $colorResource = new ColorResource($color);
-        return response()->json([
-            'data' => $colorResource,
-        ], HttpResponse::HTTP_OK);
+        $color = new Color();
+        $color->color = $dataCreate['color'];
+        $color->status = $dataCreate['status'];
+        $color->note = $dataCreate['note'];
+        $color->save();
+        return (new ColorResource($color))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**
@@ -63,19 +65,27 @@ class ColorController extends Controller
      */
     public function update(UpdateColorRequest $request, string $id)
     {
-        $color = $this->color->findOrFail($id);
-        $dataUpdate = $request->all();
-        $check = Color::where('color', $dataUpdate['color'])->exists();
-        if ($check) {
+        try {
+            $color = $this->color->findOrFail($id);
+            $dataUpdate = $request->all();
+            $check = Color::where('color', $dataUpdate['color'])->where('color_id', '!=', $id)->exists();
+            if ($check) {
+                return response()->json([
+                    'error' => 'Màu này đã tồn tại!',
+                ], HttpResponse::HTTP_CONFLICT);
+            }
+            $color->color = $dataUpdate['color'];
+            $color->status = $dataUpdate['status'];
+            $color->note = $dataUpdate['note'];
+            $color->save();
+            return (new ColorResource($color))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Màu này đã tồn tại!',
-            ], HttpResponse::HTTP_CONFLICT);
+                'error' => 'Màu '. $color->color.' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
         }
-        $color->update($dataUpdate);
-        $colorResource = new ColorResource($color);
-        return response()->json([
-            'data' => $colorResource,
-        ], HttpResponse::HTTP_OK);
     }
 
     /**
@@ -83,17 +93,22 @@ class ColorController extends Controller
      */
     public function destroy(string $id)
     {
-//        $isUsedInOtherTable = ProductDetail::where('color_id', $id)->exists();
-//        if ($isUsedInOtherTable) {
-//            return response()->json([
-//                'error' => 'Màu này đang có sản phẩm nên không thể xóa.',
-//            ], HttpResponse::HTTP_CONFLICT);
-//        }
-        $color = $this->color->where('color_id', $id)->firstOrFail();
-        $color->delete();
-        $colorResource = new ColorResource($color);
-        return response()->json([
-            'data' => $colorResource,
-        ], HttpResponse::HTTP_OK);
+        $isUsedInOtherTable = ProductDetail::where('color_id', $id)->exists();
+        if ($isUsedInOtherTable) {
+            return response()->json([
+                'error' => 'Màu này đang có sản phẩm nên không thể xóa.',
+            ], HttpResponse::HTTP_CONFLICT);
+        }
+        try {
+            $color = $this->color->where('color_id', $id)->firstOrFail();
+            $color->delete();
+            return response()->json([
+                'message' => 'Xóa thành công ' . $color->color,
+            ], HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Màu '. $color->color.' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 }

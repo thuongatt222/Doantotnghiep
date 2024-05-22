@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Shipping\StoreShippingRequest;
 use App\Http\Requests\Shipping\UpdateShippingRequest;
+use App\Http\Resources\Shipping\ShippingCollection;
 use App\Http\Resources\Shipping\ShippingResource;
 use App\Models\Order;
 use App\Models\Shipping;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response as HttpResponse;
 
 class ShippingController extends Controller
@@ -22,11 +24,8 @@ class ShippingController extends Controller
      */
     public function index()
     {
-        $shippings = $this->shipping->all();
-        $shippingsResource = ShippingResource::collection($shippings)->response()->getData(true);
-        return response()->json([
-            'data' => $shippingsResource,
-        ], HttpResponse::HTTP_OK);
+        $shippingResource = new ShippingCollection(Shipping::all());
+        return $shippingResource;
     }
 
     /**
@@ -36,16 +35,19 @@ class ShippingController extends Controller
     {
         $dataCreate = $request->all();
         $check = Shipping::where('shipping_method', $dataCreate['shipping_method'])->exists();
-        if($check){
+        if ($check) {
             return response()->json([
                 'error' => 'Phương thức đã tồn tại!'
             ], HttpResponse::HTTP_CONFLICT);
         }
-        $shipping = $this->shipping->create($dataCreate);
-        $shippingResource = new ShippingResource($shipping);
-        return response()->json([
-            'data' => $shippingResource,
-        ], HttpResponse::HTTP_OK);
+        $shipping = new Shipping();
+        $shipping->shipping_method = $dataCreate['shipping_method'];
+        $shipping->status = $dataCreate['status'];
+        $shipping->note = $dataCreate['note'];
+        $shipping->save();
+        return (new ShippingResource($shipping))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**
@@ -62,19 +64,27 @@ class ShippingController extends Controller
      */
     public function update(UpdateShippingRequest $request, string $id)
     {
-        $shipping = $this->shipping->findOrFail($id);
-        $dataUpdate = $request->all();
-        $check = Shipping::where('shipping_method', $dataUpdate['shipping_method'])->exists();
-        if($check){
+        try {
+            $shipping = $this->shipping->findOrFail($id);
+            $dataUpdate = $request->all();
+            $check = Shipping::where('shipping_method', $dataUpdate['shipping_method'])->where('shipping_method_id', '!=', $id)->exists();
+            if ($check) {
+                return response()->json([
+                    'error' => 'Phương thức đã tồn tại!'
+                ], HttpResponse::HTTP_CONFLICT);
+            }
+            $shipping->shipping_method = $dataUpdate['shipping_method'];
+            $shipping->status = $dataUpdate['status'];
+            $shipping->note = $dataUpdate['note'];
+            $shipping->save();
+            return (new ShippingResource($shipping))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Phương thức đã tồn tại!'
-            ], HttpResponse::HTTP_CONFLICT);
+                'error' => 'Phương thức ' . $shipping->shipping_method . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
         }
-        $shipping->update($dataUpdate);
-        $shippingResource = new ShippingResource($shipping);
-        return response()->json([
-            'data' => $shippingResource,
-        ], HttpResponse::HTTP_OK);
     }
 
     /**
@@ -82,17 +92,22 @@ class ShippingController extends Controller
      */
     public function destroy(string $id)
     {
-//        $isUsedInOtherTable = Order::where('shipping_method_id', $id)->exists();
-//        if ($isUsedInOtherTable) {
-//            return response()->json([
-//                'error' => 'Phương thức này đã tồn tại trong hóa đơn nên không thể xóa.',
-//            ], HttpResponse::HTTP_CONFLICT);
-//        }
-        $shipping = $this->shipping->where('shipping_method_id', $id)->firstOrFail();
-        $shipping->delete();
-        $shippingResource = new ShippingResource($shipping);
-        return response()->json([
-            'data' => $shippingResource,
-        ], HttpResponse::HTTP_OK);
+        $isUsedInOtherTable = Order::where('shipping_method_id', $id)->exists();
+        if ($isUsedInOtherTable) {
+            return response()->json([
+                'error' => 'Phương thức này đã tồn tại trong hóa đơn nên không thể xóa.',
+            ], HttpResponse::HTTP_CONFLICT);
+        }
+        try {
+            $shipping = $this->shipping->where('shipping_method_id', $id)->firstOrFail();
+            $shipping->delete();
+            return response()->json([
+                'message' => 'Xóa thành công ' . $shipping->shipping_method,
+            ], HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Phương thức ' . $shipping->shipping_method . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 }

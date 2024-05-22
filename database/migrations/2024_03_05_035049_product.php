@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id('product_id');
             $table->string('product_name');
             $table->integer('quantity');
-            $table->string('discription');
+            $table->integer('status');
+            $table->string('description');
             $table->double('price');
+            $table->text('image');
             $table->unsignedBigInteger('brand_id');
             $table->foreign('brand_id')->references('brand_id')->on('brand');
             $table->unsignedBigInteger('category_id');

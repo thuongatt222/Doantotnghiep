@@ -29,6 +29,9 @@ class StoreUserRequest extends FormRequest
             'email' => 'required',
             'password' => 'required',
             'role' => 'required',
+            'note' => 'nullable|string',
+            'status' => 'required',
+            
         ];
     }
     protected function failedValidation(Validator $validator)

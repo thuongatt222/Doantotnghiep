@@ -28,6 +28,10 @@ class StoreDiscountRequest extends FormRequest
             'discount' => 'required',
             'start_day' => 'required',
             'end_day' => 'required',
+            'status' => 'required',
+            'note' => 'nullable|string',
+            'product_id' => 'required',
+
         ];
     }
     protected function failedValidation(Validator $validator)

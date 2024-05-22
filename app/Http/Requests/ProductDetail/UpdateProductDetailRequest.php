@@ -27,6 +27,8 @@ class UpdateProductDetailRequest extends FormRequest
         return [
             'color_id' => 'required',
             'size_id' => 'required',
+            'status' => 'required',
+            'note' => 'nullable|string',
             'product_id' => 'required',
         ];
     }

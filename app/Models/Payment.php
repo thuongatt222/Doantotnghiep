@@ -10,8 +10,8 @@ class Payment extends Model
     use HasFactory;
     protected $fillable = [
         'payment_method',
-        'payment_date',
-        'payment_status',
+        'status',
+        'note'
     ];
     protected $primaryKey = 'payment_method_id';
     protected $table = 'payment_method';

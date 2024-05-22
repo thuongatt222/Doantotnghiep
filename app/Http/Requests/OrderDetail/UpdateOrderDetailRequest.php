@@ -26,7 +26,8 @@ class UpdateOrderDetailRequest extends FormRequest
     {
         return [
             'quantity' => 'required',
-            'user_id' => 'required',
+            'product_id' => 'required',
+            'price' => 'required',
             'order_id' => 'required',
         ];
     }

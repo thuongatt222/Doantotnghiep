@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Size\StoreSizeRequest;
 use App\Http\Requests\Size\UpdateSizeRequest;
+use App\Http\Resources\Size\SizeCollection;
 use App\Http\Resources\Size\SizeResource;
 use App\Models\ProductDetail;
-use App\Models\size as ModelsSize;
+use App\Models\Size;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response as HttpResponse;
 
 class SizeController extends Controller
 {
     protected $size;
-    public function __construct(ModelsSize $size)
+    public function __construct(Size $size)
     {
         $this->size = $size;
     }
@@ -21,11 +23,8 @@ class SizeController extends Controller
      */
     public function index()
     {
-        $size = $this->size->paginate(5);
-        $sizesResource = SizeResource::collection($size)->response()->getData(true);
-        return response()->json([
-            'data' => $sizesResource,
-        ], HttpResponse::HTTP_OK);
+        $SizesResource = new SizeCollection(Size::all());
+        return $SizesResource;
     }
 
     /**
@@ -33,19 +32,21 @@ class SizeController extends Controller
      */
     public function store(StoreSizeRequest $request)
     {
-        $size = $request->input('size');
-        $check = ModelsSize::where('size', $size)->exists();
+        $dataCreate = $request->all();
+        $check = Size::where('size', $dataCreate['size'])->exists();
         if ($check) {
             return response()->json([
                 'error' => 'Kích cỡ này đã tồn tại!'
             ], HttpResponse::HTTP_CONFLICT);
         }
-        $dataCreate = $request->all();
-        $size = $this->size->create($dataCreate);
-        $sizeResource = new SizeResource($size);
-        return response()->json([
-            'data' => $sizeResource,
-        ], HttpResponse::HTTP_OK);
+        $size = new Size();
+        $size->size = $dataCreate['size'];
+        $size->status = $dataCreate['status'];
+        $size->note = $dataCreate['note'];
+        $size->save();
+        return (new SizeResource($size))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**
@@ -60,19 +61,27 @@ class SizeController extends Controller
      */
     public function update(UpdateSizeRequest $request, string $id)
     {
-        $size = $this->size->findOrFail($id);
-        $dataUpdate = $request->all();
-        $check = ModelsSize::where('size', $dataUpdate['size'])->exists();
-        if ($check) {
+        try {
+            $size = $this->size->findOrFail($id);
+            $dataUpdate = $request->all();
+            $check = Size::where('size', $dataUpdate['size'])->where('size_id', '!=', $id)->exists();
+            if ($check) {
+                return response()->json([
+                    'error' => 'Kích cỡ này đã tồn tại!',
+                ], HttpResponse::HTTP_CONFLICT);
+            }
+            $size->size = $dataUpdate['size'];
+            $size->status = $dataUpdate['status'];
+            $size->note = $dataUpdate['note'];
+            $size->save();
+            return (new SizeResource($size))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Kích cỡ này đã tồn tại!',
-            ], HttpResponse::HTTP_CONFLICT);
+                'error' => 'Kích cỡ '. $size->size.' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
         }
-        $size->update($dataUpdate);
-        $sizeResource = new SizeResource($size);
-        return response()->json([
-            'data' => $sizeResource,
-        ], HttpResponse::HTTP_OK);
     }
 
     /**
@@ -86,11 +95,16 @@ class SizeController extends Controller
                 'error' => 'Màu này đang có sản phẩm nên không thể xóa.',
             ], HttpResponse::HTTP_CONFLICT);
         }
-        $size = $this->size->where('size_id', $id)->firstOrFail();
-        $size->delete();
-        $sizeResource = new SizeResource($size);
-        return response()->json([
-            'data' => $sizeResource,
-        ], HttpResponse::HTTP_OK);
+        try {
+            $size = $this->size->where('size_id', $id)->firstOrFail();
+            $size->delete();
+            return response()->json([
+                'message' => 'Xóa thành công ' . $size->size,
+            ], HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Kích cỡ '. $size->size.' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 }

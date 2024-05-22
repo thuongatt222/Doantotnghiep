@@ -28,6 +28,8 @@ class UpdateSizeRequest extends FormRequest
     {
         return [
             'size' => 'required',
+            'note' => 'nullable|string',
+            'status' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
+use App\Http\Resources\Payment\PaymentCollection;
 use App\Http\Resources\Payment\PaymentResource;
+use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
@@ -22,11 +25,8 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        $payments = $this->payment->all();
-        $paymentsResource = PaymentResource::collection($payments)->response()->getData(true);
-        return response()->json([
-            'data' => $paymentsResource,
-        ], HttpResponse::HTTP_OK);
+        $paymentResource = new PaymentCollection(Payment::all());
+        return $paymentResource;
     }
 
     /**
@@ -41,11 +41,14 @@ class PaymentController extends Controller
                 'error' => 'Phương thức đã tồn tại!'
             ], HttpResponse::HTTP_CONFLICT);
         }
-        $payment = $this->payment->create($dataCreate);
-        $paymentResource = new PaymentResource($payment);
-        return response()->json([
-            'data' => $paymentResource,
-        ], HttpResponse::HTTP_OK);
+        $payment = new Payment();
+        $payment->payment_method = $dataCreate['payment_method'];
+        $payment->status = $dataCreate['status'];
+        $payment->note = $dataCreate['note'];
+        $payment->save();
+        return (new PaymentResource($payment))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**
@@ -61,19 +64,27 @@ class PaymentController extends Controller
      */
     public function update(UpdatePaymentRequest $request, string $id)
     {
-        $payment = $this->payment->findOrFail($id);
-        $dataUpdate = $request->all();
-        $check = Payment::where('payment_method', $dataUpdate['payment_method'])->exists();
-        if ($check) {
+        try {
+            $payment = $this->payment->findOrFail($id);
+            $dataUpdate = $request->all();
+            $check = Payment::where('payment_method', $dataUpdate['payment_method'])->where('payment_method_id', '!=', $id)->exists();
+            if ($check) {
+                return response()->json([
+                    'error' => 'Phương thức đã tồn tại!'
+                ], HttpResponse::HTTP_CONFLICT);
+            }
+            $payment->payment_method = $dataUpdate['payment_method'];
+            $payment->status = $dataUpdate['status'];
+            $payment->note = $dataUpdate['note'];
+            $payment->save();
+            return (new PaymentResource($payment))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Phương thức đã tồn tại!'
-            ], HttpResponse::HTTP_CONFLICT);
+                'error' => 'Phương thức '. $payment->payment_method.' không tồn tại'
+            ], HttpResponse::HTTP_NOT_FOUND);
         }
-        $payment->update($dataUpdate);
-        $paymentResource = new PaymentResource($payment);
-        return response()->json([
-            'data' => $paymentResource,
-        ], HttpResponse::HTTP_OK);
     }
 
     /**
@@ -81,17 +92,22 @@ class PaymentController extends Controller
      */
     public function destroy(string $id)
     {
-//        $isUsedInOtherTable = Payment::where('payment_method_id', $id)->exists();
-//        if ($isUsedInOtherTable) {
-//            return response()->json([
-//                'error' => 'Phương thức này đã tồn tại trong hóa đơn nên không thể xóa.',
-//            ], HttpResponse::HTTP_CONFLICT);
-//        }
-        $payment = $this->payment->where('payment_method_id', $id)->firstOrFail();
-        $payment->delete();
-        $paymentResource = new PaymentResource($payment);
-        return response()->json([
-            'data' => $paymentResource,
-        ], HttpResponse::HTTP_OK);
+        $isUsedInOtherTable = Order::where('payment_method_id', $id)->exists();
+        if ($isUsedInOtherTable) {
+            return response()->json([
+                'error' => 'Phương thức này đã tồn tại trong hóa đơn nên không thể xóa.',
+            ], HttpResponse::HTTP_CONFLICT);
+        }
+        try {
+            $payment = $this->payment->where('payment_method_id', $id)->firstOrFail();
+            $payment->delete();
+            return response()->json([
+                'message' => 'Xóa thành công ' . $payment->payment_method,
+            ], HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Phương thức '. $payment->payment_method.' không tồn tại'
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 }

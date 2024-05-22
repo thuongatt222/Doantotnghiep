@@ -12,6 +12,9 @@ class Discount extends Model
         'discount',
         'start_day',
         'end_day',
+        'status',
+        'note',
+        'product_id'
     ];
     protected $primaryKey = 'discount_id';
     protected $table = 'discount';

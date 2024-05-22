@@ -7,6 +7,7 @@ use App\Http\Requests\Review\UpdateReviewRequest;
 use App\Http\Resources\Review\ReviewResource;
 use App\Models\Review;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class ReviewController extends Controller

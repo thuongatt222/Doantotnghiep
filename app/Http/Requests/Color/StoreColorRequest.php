@@ -26,6 +26,8 @@ class StoreColorRequest extends FormRequest
     {
         return [
             'color' => 'required',
+            'note' => 'nullable|string',
+            'status' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

@@ -26,6 +26,8 @@ class StoreBrandRequest extends FormRequest
     {
         return [
             'brand_name' => 'required',
+            'status' => 'required',
+            'note' => 'nullable|string',
         ];
     }
     protected function failedValidation(Validator $validator)

@@ -9,6 +9,7 @@ use App\Models\Color;
 use App\Models\Product;
 use App\Models\ProductDetail;
 use App\Models\size;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 

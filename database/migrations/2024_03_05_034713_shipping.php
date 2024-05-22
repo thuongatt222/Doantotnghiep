@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('shipping_method', function (Blueprint $table) {
             $table->id('shipping_method_id');
-            $table->string('shipping_method');
+            $table->string('shipping_method')->unique();
+            $table->integer('status');
             $table->timestamps();
             $table->text('note')->nullable();
         });

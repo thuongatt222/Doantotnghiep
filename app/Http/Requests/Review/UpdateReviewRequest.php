@@ -25,7 +25,18 @@ class UpdateReviewRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'review' => 'required',
+            'evaluation' => 'required',
+            'product_id' => 'required',
+            'user_id' => 'required',
         ];
+    }
+    protected function failedValidation(Validator $validator)
+    {
+        $response = new Response([
+            'error' => $validator->errors(),
+
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        throw (new ValidationException($validator, $response));
     }
 }

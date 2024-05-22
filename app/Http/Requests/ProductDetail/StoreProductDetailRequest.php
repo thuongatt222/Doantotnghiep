@@ -28,6 +28,8 @@ class StoreProductDetailRequest extends FormRequest
             'color_id' => 'required',
             'size_id' => 'required',
             'product_id' => 'required',
+            'note' => 'nullable|string',
+            'status' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

@@ -9,6 +9,7 @@ use App\Http\Resources\Brand\BrandResource;
 use App\Models\Brand;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Response as HttpResponse;
 
 
@@ -21,8 +22,7 @@ class BrandController extends Controller
     }
     public function index()
     {
-        $brands = $this->brand->paginate(5);
-        $brandsResource = new BrandCollection($brands);
+        $brandsResource = new BrandCollection(Brand::all());
         return $brandsResource;
     }
 
@@ -35,15 +35,18 @@ class BrandController extends Controller
         $check = Brand::where('brand_name', $brand_name)->exists();
         if ($check) {
             return response()->json([
-                'error' => 'Tên nhẫn hàng này đã tồn tại.'
+                'error' => 'Tên nhãn hàng này đã tồn tại.'
             ], HttpResponse::HTTP_CONFLICT);
         } else {
             $dataCreate = $request->all();
-            $brand = $this->brand->create($dataCreate);
-            $brandResource = new BrandResource($brand);
-            return response()->json([
-                'data' => $brandResource,
-            ], HttpResponse::HTTP_OK);
+            $brand = new Brand();
+            $brand->brand_name = $dataCreate['brand_name'];
+            $brand->status = $dataCreate['status'];
+            $brand->note = $dataCreate['note'];
+            $brand->save();
+            return (new BrandResource($brand))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
         }
     }
 
@@ -59,19 +62,27 @@ class BrandController extends Controller
      */
     public function update(UpdateBrandRequest $request, string $id)
     {
-        $brand = $this->brand->findOrFail($id);
-        $dataUpdate = $request->all();
-        $check = Brand::where('brand_name', $dataUpdate['brand_name'])->exists();
-        if ($check) {
+        try {
+            $brand = $this->brand->findOrFail($id);
+            $dataUpdate = $request->all();
+            $check = Brand::where('brand_name', $dataUpdate['brand_name'])->where('brand_id', '!=', $id)->exists();
+            if ($check) {
+                return response()->json([
+                    'error' => 'Tên thương hiệu này đã tồn tại!',
+                ], HttpResponse::HTTP_CONFLICT);
+            }
+            $brand->brand_name = $dataUpdate['brand_name'];
+            $brand->status = $dataUpdate['status'];
+            $brand->note = $dataUpdate['note'];
+            $brand->save();
+            return (new BrandResource($brand))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Tên thương hiệu này đã tồn tại!',
-            ], HttpResponse::HTTP_CONFLICT);
+                'error' => 'Thương hiệu ' . $brand->brand_name . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
         }
-        $brand->update($dataUpdate);
-        $brandResource = new BrandResource($brand);
-        return response()->json([
-            'data' => $brandResource,
-        ], HttpResponse::HTTP_OK);
     }
 
     /**
@@ -85,11 +96,16 @@ class BrandController extends Controller
                 'error' => 'Nhãn hành này đang có sản phẩm nên không thể xóa.',
             ], HttpResponse::HTTP_CONFLICT);
         }
-        $brand = $this->brand->where('brand_id', $id)->firstOrFail();
-        $brand->delete();
-        $brandResource = new BrandResource($brand);
-        return response()->json([
-            'data' => $brandResource,
-        ], HttpResponse::HTTP_OK);
+        try {
+            $brand = $this->brand->where('brand_id', $id)->firstOrFail();
+            $brand->delete();
+            return response()->json([
+                'message' => 'Xóa thành công ' . $brand->brand_name,
+            ], HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Thương hiệu ' . $brand->brand_name . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 }

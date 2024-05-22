@@ -25,13 +25,16 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'purchase_date' => 'required',
             'address' => 'required',
             'phone_number' => 'required',
             'status' => 'required',
             'total' => 'required',
             'payment_method_id' => 'required',
             'shipping_method_id' => 'required',
+            'payment_status' => 'required',
+            'user_id' => 'required',
+            'note' => 'nullable|string',
+            'employee_id' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

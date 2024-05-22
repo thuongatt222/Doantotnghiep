@@ -60,8 +60,8 @@ Route::group([
 
 ], function ($router) {
 
-    Route::post('login', [AccountController::class, 'login']);
-    Route::post('logout', [AccountController::class, 'logout']);
+    Route::post('login', [AccountController::class, 'login_admin']);
+    Route::post('logout', [AccountController::class, 'logout_admin']);
     Route::post('refresh', [AccountController::class, 'refresh']);
     Route::post('me', [AccountController::class, 'me']);
 

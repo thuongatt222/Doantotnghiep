@@ -27,7 +27,8 @@ class StoreOrderDetailRequest extends FormRequest
         return [
             'quantity' => 'required',
             'order_id' => 'required',
-            'user_id' => 'required',
+            'product_id' => 'required',
+            'price' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

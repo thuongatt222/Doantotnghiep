@@ -26,6 +26,8 @@ class UpdateBrandRequest extends FormRequest
     {
         return [
             'brand_name' => 'required',
+            'note' => 'nullable|string',
+            'status' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

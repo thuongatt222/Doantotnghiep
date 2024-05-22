@@ -26,6 +26,9 @@ class StoreShippingRequest extends FormRequest
     {
         return [
             'shipping_method' => 'required',
+            'note' => 'nullable|string',
+            'status' => 'required',
+
         ];
     }
     protected function failedValidation(Validator $validator)
