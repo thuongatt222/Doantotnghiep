@@ -58,6 +58,16 @@ class VoucherController extends Controller
      */
     public function show(string $id)
     {
+        try {
+            $voucher = $this->voucher->findOrFail($id);
+            return (new VoucherResource($voucher))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Voucher id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**
