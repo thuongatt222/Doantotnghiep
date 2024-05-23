@@ -3,9 +3,9 @@
 namespace App\Http\Resources\Payment;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class PaymentCollection extends JsonResource
+class PaymentCollection extends ResourceCollection
 {
     /**
      * Transform the resource into an array.
