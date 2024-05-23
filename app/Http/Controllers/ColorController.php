@@ -54,10 +54,18 @@ class ColorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Color $color)
+    public function show(string $id)
     {
-        //
-        return $color;
+        try {
+            $color = $this->color->findOrFail($id);
+            return (new ColorResource($color))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Màu id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**
@@ -83,7 +91,7 @@ class ColorController extends Controller
                 ->setStatusCode(HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Màu '. $color->color.' không tồn tại',
+                'error' => 'Màu id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
@@ -107,7 +115,7 @@ class ColorController extends Controller
             ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Màu '. $color->color.' không tồn tại',
+                'error' => 'Màu id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }

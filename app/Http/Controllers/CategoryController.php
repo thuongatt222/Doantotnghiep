@@ -54,10 +54,18 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Category $category)
+    public function show(string $id)
     {
-        //
-        return $category;
+        try {
+            $category = $this->category->findOrFail($id);
+            return (new CategoryResource($category))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Thể loại id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**
@@ -83,7 +91,7 @@ class CategoryController extends Controller
                 ->setStatusCode(HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Thể loại '. $category->category_name. ' không tồn tại'
+                'error' => 'Thể loại id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
@@ -107,7 +115,7 @@ class CategoryController extends Controller
             ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Thể loại '. $category->category_name. ' không tồn tại'
+                'error' => 'Thể loại id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }

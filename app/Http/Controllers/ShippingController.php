@@ -53,10 +53,18 @@ class ShippingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Shipping $shipping)
+    public function show(string $id)
     {
-        //
-        return $shipping;
+        try {
+            $shipping = $this->shipping->findOrFail($id);
+            return (new ShippingResource($shipping))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Phương thức id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**
@@ -82,7 +90,7 @@ class ShippingController extends Controller
                 ->setStatusCode(HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Phương thức ' . $shipping->shipping_method . ' không tồn tại',
+                'error' => 'Phương thức id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
@@ -106,7 +114,7 @@ class ShippingController extends Controller
             ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Phương thức ' . $shipping->shipping_method . ' không tồn tại',
+                'error' => 'Phương thức id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }

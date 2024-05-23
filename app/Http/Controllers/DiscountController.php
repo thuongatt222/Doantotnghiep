@@ -57,7 +57,16 @@ class DiscountController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $discount = $this->discount->findOrFail($id);
+            return (new DiscountResource($discount))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Discount id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**
@@ -85,7 +94,7 @@ class DiscountController extends Controller
                 ->setStatusCode(HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Discount không tồn tại'
+                'error' => 'Discount id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
@@ -109,7 +118,7 @@ class DiscountController extends Controller
             ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Discount không tồn tại'
+                'error' => 'Discount id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }

@@ -54,6 +54,16 @@ class SizeController extends Controller
      */
     public function show(string $id)
     {
+        try {
+            $size = $this->size->findOrFail($id);
+            return (new SizeResource($size))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Kích cỡ id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**
@@ -79,7 +89,7 @@ class SizeController extends Controller
                 ->setStatusCode(HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Kích cỡ '. $size->size.' không tồn tại',
+                'error' => 'Kích cỡ id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
@@ -103,7 +113,7 @@ class SizeController extends Controller
             ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Kích cỡ '. $size->size.' không tồn tại',
+                'error' => 'Kích cỡ id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }

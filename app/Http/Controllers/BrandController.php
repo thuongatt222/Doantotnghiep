@@ -55,6 +55,16 @@ class BrandController extends Controller
      */
     public function show(string $id)
     {
+        try {
+            $brand = $this->brand->findOrFail($id);
+            return (new BrandResource($brand))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Thương hiệu id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**
@@ -80,7 +90,7 @@ class BrandController extends Controller
                 ->setStatusCode(HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Thương hiệu ' . $brand->brand_name . ' không tồn tại',
+                'error' => 'Thương hiệu id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
@@ -104,7 +114,7 @@ class BrandController extends Controller
             ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Thương hiệu ' . $brand->brand_name . ' không tồn tại',
+                'error' => 'Thương hiệu id là ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
