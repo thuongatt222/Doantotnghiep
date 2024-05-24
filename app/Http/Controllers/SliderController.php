@@ -63,9 +63,18 @@ class SliderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(slider $slider)
+    public function show(string $id)
     {
-        //
+        try {
+            $slider = $this->slider->findOrFail($id);
+            return (new SliderResource($slider))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Slider id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**

@@ -54,7 +54,16 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $product = $this->product->findOrFail($id);
+            return (new ProductResource($product))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Product id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**

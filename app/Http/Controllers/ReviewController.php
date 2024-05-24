@@ -47,7 +47,16 @@ class ReviewController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $review = $this->review->findOrFail($id);
+            return (new ReviewResource($review))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Review id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**

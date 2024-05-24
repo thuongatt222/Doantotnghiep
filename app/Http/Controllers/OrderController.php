@@ -48,7 +48,16 @@ class OrderController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $order = $this->order->findOrFail($id);
+            return (new OrderResource($order))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Order id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**

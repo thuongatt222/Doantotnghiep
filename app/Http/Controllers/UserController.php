@@ -54,7 +54,16 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $user = $this->user->findOrFail($id);
+            return (new UserResource($user))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'User id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**

@@ -48,7 +48,16 @@ class OrderDetailController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $order_detail = $this->order_detail->findOrFail($id);
+            return (new OrderDetailResource($order_detail))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Order detail id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**

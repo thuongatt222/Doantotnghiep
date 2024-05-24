@@ -58,7 +58,16 @@ class ProductDetailController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $product_detail = $this->product_detail->findOrFail($id);
+            return (new ProductDetailResource($product_detail))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Product detail id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
 
     /**
