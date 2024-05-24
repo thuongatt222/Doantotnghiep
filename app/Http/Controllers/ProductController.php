@@ -26,7 +26,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = $this->product->paginate(5);
+        $products = Product::all();
         return new ProductCollection($products);
     }
 
