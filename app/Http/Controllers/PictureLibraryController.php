@@ -49,9 +49,16 @@ class PictureLibraryController extends Controller
         $get_image = $dataCreate['image'];
         $product_detail_id = $request->product_detail_id;
         $product_detail = ProductDetail::find($product_detail_id);
+        if (!$product_detail) {
+            return response()->json(['error' => 'Product detail not found'], 404);
+        }
         $product = Product::find($product_detail->product_id);
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
+        }
+        // dd($get_image);
         if ($get_image) {
-            foreach ($get_image as $key => $img) {
+            foreach ($get_image as $img) {
                 $path = 'uploads/library/';
                 $get_name_image = $img->getClientOriginalName();
                 $name_image = current(explode('.', $get_name_image));
@@ -64,7 +71,6 @@ class PictureLibraryController extends Controller
                 $picture->save();
             }
         }
-
         $pictures = Picture::where('product_detail_id', $product_detail_id)->get();
         return new PictureCollection($pictures);
     }
@@ -82,7 +88,6 @@ class PictureLibraryController extends Controller
      */
     public function edit($id)
     {
-        
     }
 
     /**
@@ -90,7 +95,6 @@ class PictureLibraryController extends Controller
      */
     public function update(UpdatePictureRequest $request, $id)
     {
-        
     }
 
     /**
@@ -106,7 +110,7 @@ class PictureLibraryController extends Controller
             ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Hình ảnh '. $picture->image.' không tồn tại',
+                'error' => 'Hình ảnh ' . $picture->image . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
