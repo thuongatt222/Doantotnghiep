@@ -64,8 +64,9 @@ class PictureLibraryController extends Controller
                 $picture->save();
             }
         }
-        $pictures  = new PictureCollection($picture);
-        return $pictures;
+
+        $pictures = Picture::where('product_detail_id', $product_detail_id)->get();
+        return new PictureCollection($pictures);
     }
 
     /**
