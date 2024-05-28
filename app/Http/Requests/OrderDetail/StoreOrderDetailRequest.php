@@ -27,7 +27,7 @@ class StoreOrderDetailRequest extends FormRequest
         return [
             'quantity' => 'required',
             'order_id' => 'required',
-            'product_id' => 'required',
+            'product_detail_id' => 'required',
             'price' => 'required',
         ];
     }
