@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\OrderDetail\StoreOrderDetailRequest;
 use App\Http\Requests\OrderDetail\UpdateOrderDetailRequest;
+use App\Http\Resources\OrderDetail\OrderDetailCollection;
 use App\Http\Resources\OrderDetail\OrderDetailResource;
 use App\Models\OrderDetail;
 use App\Models\Product;
@@ -23,11 +24,9 @@ class OrderDetailController extends Controller
      */
     public function index()
     {
-        $order_details = $this->order_detail->paginate(5);
-        $order_detailsResource = OrderDetailResource::collection($order_details)->response()->getData(true);
-        return response()->json([
-            'data' => $order_detailsResource,
-        ], HttpResponse::HTTP_OK);
+
+        $order_detailsResource = OrderDetail::all();
+        return new OrderDetailCollection($order_detailsResource);
     }
 
     /**

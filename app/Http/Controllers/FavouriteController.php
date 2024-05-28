@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Favourite\StoreFavouriteRequest;
 use App\Http\Requests\Favourite\UpdateFavouriteRequest;
+use App\Http\Resources\Favourite\FavouriteCollection;
 use App\Http\Resources\Favourite\FavouriteResource;
 use App\Models\Favourite;
 use Illuminate\Http\Response as HttpResponse;
@@ -22,11 +23,9 @@ class FavouriteController extends Controller
      */
     public function index()
     {
-        $favourite = $this->favourite->paginate(5);
-        $favouritesResource = FavouriteResource::collection($favourite)->response()->getData(true);
-        return response()->json([
-            'data' => $favouritesResource,
-        ], HttpResponse::HTTP_OK);
+       
+        $favouritesResource = Favourite::all();
+        return new FavouriteCollection($favouritesResource);
     }
 
     /**

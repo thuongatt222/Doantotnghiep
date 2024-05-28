@@ -25,11 +25,11 @@ class ProductDetailController extends Controller
      */
     public function index()
     {
-        $product_details = $this->product_detail->paginate(5);
-        $product_detailsResource = ProductDetailResource::collection($product_details)->response()->getData(true);
-        return response()->json([
-            'data' => $product_detailsResource,
-        ], HttpResponse::HTTP_OK);
+        
+        $product_detailsResource = ProductDetail::all();
+        return (new ProductDetailResource($product_detailsResource))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**

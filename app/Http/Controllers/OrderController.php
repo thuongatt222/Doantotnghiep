@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Requests\Order\UpdateOrderRequest;
+use App\Http\Resources\Order\OrderCollection;
 use App\Http\Resources\Order\OrderResource;
 use App\Models\Order;
 use App\Models\OrderDetail;
@@ -23,11 +24,9 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $order = $this->order->paginate(5);
-        $orderResource = OrderResource::collection($order)->response()->getData(true);
-        return response()->json([
-            'data' => $orderResource,
-        ], HttpResponse::HTTP_OK);
+        
+        $orderResource = Order::all();
+        return new OrderCollection($orderResource);
     }
 
     /**

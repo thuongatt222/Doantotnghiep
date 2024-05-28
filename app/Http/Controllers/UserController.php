@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -23,11 +24,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = $this->user->paginate(5);
-        $usersResource = UserResource::collection($user)->response()->getData(true);
-        return response()->json([
-            'data' => $usersResource,
-        ], HttpResponse::HTTP_OK);
+        
+        $usersResource = User::all();
+        return (new UserCollection($usersResource))
+        ->response()
+        ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Review\StoreReviewRequest;
 use App\Http\Requests\Review\UpdateReviewRequest;
+use App\Http\Resources\Review\ReviewCollection;
 use App\Http\Resources\Review\ReviewResource;
 use App\Models\Review;
 use Illuminate\Http\Response as HttpResponse;
@@ -22,11 +23,11 @@ class ReviewController extends Controller
      */
     public function index()
     {
-        $review = $this->review->paginate(5);
-        $reviewResource = ReviewResource::collection($review)->response()->getData(true);
-        return response()->json([
-            'data' => $reviewResource,
-        ], HttpResponse::HTTP_OK);
+        
+        $reviewResource = Review::all();
+        return (new ReviewCollection($reviewResource))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**
