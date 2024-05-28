@@ -21,6 +21,7 @@ class DiscountResource extends JsonResource
             'end_day' => $this->end_day,
             'status' => $this->status,
             'note' => $this->note,
+            'product_id' => $this->product_id,
         ];
     }
 }

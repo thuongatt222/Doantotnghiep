@@ -35,15 +35,6 @@ class DiscountController extends Controller
     public function store(StoreDiscountRequest $request)
     {
         $dataCreate = $request->all();
-
-        // Check if the discount already exists
-        $check = Discount::where('discount', $dataCreate['discount'])->exists();
-        if ($check) {
-            return response()->json([
-                'error' => 'Discount này đã tồn tại!'
-            ], HttpResponse::HTTP_CONFLICT);
-        }
-
         try {
             // Format start_day and end_day
             $dataCreate['start_day'] = Carbon::createFromFormat('d/m/Y H:i:s', $dataCreate['start_day'])->format('Y-m-d H:i:s');
@@ -53,7 +44,23 @@ class DiscountController extends Controller
                 'error' => 'Định dạng ngày tháng không hợp lệ.'
             ], HttpResponse::HTTP_UNPROCESSABLE_ENTITY);
         }
+        // Check if there is an active discount for the same product in the given period
+        $activeDiscount = Discount::where('product_id', $dataCreate['product_id'])
+            ->where(function ($query) use ($dataCreate) {
+                $query->whereBetween('start_day', [$dataCreate['start_day'], $dataCreate['end_day']])
+                    ->orWhereBetween('end_day', [$dataCreate['start_day'], $dataCreate['end_day']])
+                    ->orWhere(function ($query) use ($dataCreate) {
+                        $query->where('start_day', '<=', $dataCreate['start_day'])
+                            ->where('end_day', '>=', $dataCreate['end_day']);
+                    });
+            })
+            ->exists();
 
+        if ($activeDiscount) {
+            return response()->json([
+                'error' => 'Có chương trình khuyến mãi khác đang hoạt động cho sản phẩm này trong khoảng thời gian này.'
+            ], HttpResponse::HTTP_CONFLICT);
+        }
         // Create new Discount
         $discount = new Discount();
         $discount->discount = $dataCreate['discount'];
@@ -95,16 +102,6 @@ class DiscountController extends Controller
             $discount = Discount::findOrFail($id);
             $dataUpdate = $request->all();
 
-            $check = Discount::where('discount', $dataUpdate['discount'])
-                ->where('discount_id', '!=', $id)
-                ->exists();
-
-            if ($check) {
-                return response()->json([
-                    'error' => 'Discount này đã tồn tại!',
-                ], HttpResponse::HTTP_CONFLICT);
-            }
-
             // Format start_day and end_day
             try {
                 $dataUpdate['start_day'] = Carbon::createFromFormat('d/m/Y H:i:s', $dataUpdate['start_day'])->format('Y-m-d H:i:s');
@@ -115,6 +112,26 @@ class DiscountController extends Controller
                 ], HttpResponse::HTTP_UNPROCESSABLE_ENTITY);
             }
 
+            // Check if there is an active discount for the same product in the given period, excluding the current discount
+            $activeDiscount = Discount::where('product_id', $dataUpdate['product_id'])
+                ->where('discount_id', '!=', $id)
+                ->where(function ($query) use ($dataUpdate) {
+                    $query->whereBetween('start_day', [$dataUpdate['start_day'], $dataUpdate['end_day']])
+                        ->orWhereBetween('end_day', [$dataUpdate['start_day'], $dataUpdate['end_day']])
+                        ->orWhere(function ($query) use ($dataUpdate) {
+                            $query->where('start_day', '<=', $dataUpdate['start_day'])
+                                ->where('end_day', '>=', $dataUpdate['end_day']);
+                        });
+                })
+                ->exists();
+
+            if ($activeDiscount) {
+                return response()->json([
+                    'error' => 'Có chương trình khuyến mãi khác đang hoạt động cho sản phẩm này trong khoảng thời gian này.'
+                ], HttpResponse::HTTP_CONFLICT);
+            }
+
+            // Update Discount
             $discount->discount = $dataUpdate['discount'];
             $discount->start_day = $dataUpdate['start_day'];
             $discount->end_day = $dataUpdate['end_day'];
@@ -138,14 +155,19 @@ class DiscountController extends Controller
      */
     public function destroy(string $id)
     {
-        $isUsedInOtherTable = Product::where('discount_id', $id)->exists();
-        if ($isUsedInOtherTable) {
-            return response()->json([
-                'error' => 'Discount này đang có sản phẩm nên không thể xóa.',
-            ], HttpResponse::HTTP_CONFLICT);
-        }
         try {
-            $discount = $this->discount->where('discount_id', $id)->firstOrFail();
+            // Find the discount
+            $discount = Discount::where('discount_id', $id)->firstOrFail();
+
+            // Check if the discount is currently running
+            $now = Carbon::now();
+            if ($discount->start_day <= $now && $discount->end_day >= $now) {
+                return response()->json([
+                    'error' => 'Discount này đang chạy nên không thể xóa.',
+                ], HttpResponse::HTTP_CONFLICT);
+            }
+
+            // Delete the discount
             $discount->delete();
             return response()->json([
                 'message' => 'Xóa thành công ' . $discount->discount,
