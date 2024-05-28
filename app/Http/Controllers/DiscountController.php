@@ -107,8 +107,8 @@ class DiscountController extends Controller
 
             // Format start_day and end_day
             try {
-                $dataUpdate['start_day'] = Carbon::createFromFormat('d/m/Y h:i A', $dataUpdate['start_day'])->format('Y-m-d H:i:s');
-                $dataUpdate['end_day'] = Carbon::createFromFormat('d/m/Y h:i A', $dataUpdate['end_day'])->format('Y-m-d H:i:s');
+                $dataUpdate['start_day'] = Carbon::createFromFormat('d/m/Y H:i:s', $dataUpdate['start_day'])->format('Y-m-d H:i:s');
+                $dataUpdate['end_day'] = Carbon::createFromFormat('d/m/Y H:i:s', $dataUpdate['end_day'])->format('Y-m-d H:i:s');
             } catch (\Exception $e) {
                 return response()->json([
                     'error' => 'Định dạng ngày tháng không hợp lệ.'
@@ -120,6 +120,7 @@ class DiscountController extends Controller
             $discount->end_day = $dataUpdate['end_day'];
             $discount->status = $dataUpdate['status'];
             $discount->note = $dataUpdate['note'];
+            $discount->product_id = $dataUpdate['product_id'];
             $discount->save();
 
             return (new DiscountResource($discount))
