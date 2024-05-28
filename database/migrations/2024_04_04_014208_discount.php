@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('discount', function (Blueprint $table) {
             $table->id('discount_id');
             $table->integer('discount');
-            $table->date('start_day');
-            $table->date('end_day');
+            $table->datetimes('start_day');
+            $table->datetimes('end_day');
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('product_id')->on('product');
             $table->integer('status');
