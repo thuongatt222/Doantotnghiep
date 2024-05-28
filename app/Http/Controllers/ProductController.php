@@ -45,6 +45,7 @@ class ProductController extends Controller
         $product = new Product();
         $product->product_name = $dataCreate['product_name'];
         $product->status = $dataCreate['status'];
+        $product->note = $dataCreate['note'];
         $product->description = $dataCreate['description'];
         $product->price = $dataCreate['price'];
         $get_image = $dataCreate['image'];
@@ -56,7 +57,6 @@ class ProductController extends Controller
         $product->image = $new_image;
         $product->brand_id = $dataCreate['brand_id'];
         $product->category_id = $dataCreate['category_id'];
-        $product->note = $dataCreate['note'];
         $product->save();
         return (new ProductResource($product))
             ->response()
