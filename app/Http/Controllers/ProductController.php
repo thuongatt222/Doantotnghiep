@@ -42,11 +42,25 @@ class ProductController extends Controller
                 'error' => 'Sản phẩm này đã tồn tại!'
             ], HttpResponse::HTTP_CONFLICT);
         }
-        $product = $this->product->create($dataCreate);
-        $productResource = new ProductResource($product);
-        return response()->json([
-            'data' => $productResource,
-        ], HttpResponse::HTTP_OK);
+        $product = new Product();
+        $product->product_name = $dataCreate['product_name'];
+        $product->status = $dataCreate['status'];
+        $product->description = $dataCreate['description'];
+        $product->price = $dataCreate['price'];
+        $get_image = $dataCreate['image'];
+        $path = 'uploads/product/';
+        $get_name_image = $get_image->getClientOriginalName();
+        $name_image = current(explode('.', $get_name_image));
+        $new_image = $name_image . rand(0, 99) . '.' . $get_image->getClientOriginalExtension();
+        $get_image->move($path, $new_image);
+        $product->image = $new_image;
+        $product->brand_id = $dataCreate['brand_id'];
+        $product->category_id = $dataCreate['category_id'];
+        $product->note = $dataCreate['note'];
+        $product->save();
+        return (new ProductResource($product))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**

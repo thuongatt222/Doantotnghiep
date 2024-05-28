@@ -25,8 +25,12 @@ class UpdateProductDetailRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'color_id' => 'required',
             'quantity' =>'required|integer',
+            'size_id' => 'required',
+            'product_id' => 'required',
             'note' => 'nullable|string',
+            'status' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

@@ -79,7 +79,7 @@ class ProductDetailController extends Controller
         $dataUpdate = $request->all();
         $check = ProductDetail::where('color_id', $dataUpdate['color_id'])
             ->where('product_id', $dataUpdate['product_id'])
-            ->where('size_id', $dataUpdate['size_id'])->exists();
+            ->where('size_id', $dataUpdate['size_id'])->where('product_detail_id', '!=', $id)->exists();
         if($check){
             return response()->json([
                 'error' => 'Sản phẩm này đã tồn tại'
