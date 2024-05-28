@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id('voucher_id');
             $table->text('voucher');
             $table->integer('quantity');
-            $table->datetimes('start_day');
-            $table->datetimes('end_day');
+            $table->datetime('start_day');
+            $table->datetime('end_day');
             $table->integer('status');
             $table->timestamps();
             $table->text('note')->nullable();
