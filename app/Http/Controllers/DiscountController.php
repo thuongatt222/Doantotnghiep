@@ -90,48 +90,47 @@ class DiscountController extends Controller
      * Update the specified resource in storage.
      */
     public function update(UpdateDiscountRequest $request, string $id)
-{
-    try {
-        $discount = Discount::findOrFail($id);
-        $dataUpdate = $request->all();
-
-        $check = Discount::where('discount', $dataUpdate['discount'])
-            ->where('discount_id', '!=', $id)
-            ->exists();
-
-        if ($check) {
-            return response()->json([
-                'error' => 'Discount này đã tồn tại!',
-            ], HttpResponse::HTTP_CONFLICT);
-        }
-
-        // Format start_day and end_day
+    {
         try {
-            $dataUpdate['start_day'] = Carbon::createFromFormat('d/m/Y H:i:s', $dataUpdate['start_day'])->format('Y-m-d H:i:s');
-            $dataUpdate['end_day'] = Carbon::createFromFormat('d/m/Y H:i:s', $dataUpdate['end_day'])->format('Y-m-d H:i:s');
-        } catch (\Exception $e) {
+            $discount = Discount::findOrFail($id);
+            $dataUpdate = $request->all();
+
+            $check = Discount::where('discount', $dataUpdate['discount'])
+                ->where('discount_id', '!=', $id)
+                ->exists();
+
+            if ($check) {
+                return response()->json([
+                    'error' => 'Discount này đã tồn tại!',
+                ], HttpResponse::HTTP_CONFLICT);
+            }
+
+            // Format start_day and end_day
+            try {
+                $dataUpdate['start_day'] = Carbon::createFromFormat('d/m/Y h:i A', $dataUpdate['start_day'])->format('Y-m-d H:i:s');
+                $dataUpdate['end_day'] = Carbon::createFromFormat('d/m/Y h:i A', $dataUpdate['end_day'])->format('Y-m-d H:i:s');
+            } catch (\Exception $e) {
+                return response()->json([
+                    'error' => 'Định dạng ngày tháng không hợp lệ.'
+                ], HttpResponse::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $discount->discount = $dataUpdate['discount'];
+            $discount->start_day = $dataUpdate['start_day'];
+            $discount->end_day = $dataUpdate['end_day'];
+            $discount->status = $dataUpdate['status'];
+            $discount->note = $dataUpdate['note'];
+            $discount->save();
+
+            return (new DiscountResource($discount))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Định dạng ngày tháng không hợp lệ.'
-            ], HttpResponse::HTTP_UNPROCESSABLE_ENTITY);
+                'error' => 'Discount id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
         }
-
-        $discount->discount = $dataUpdate['discount'];
-        $discount->start_day = $dataUpdate['start_day'];
-        $discount->end_day = $dataUpdate['end_day'];
-        $discount->status = $dataUpdate['status'];
-        $discount->note = $dataUpdate['note'];
-        $discount->product_id = $dataUpdate['product_id'];
-        $discount->save();
-
-        return (new DiscountResource($discount))
-            ->response()
-            ->setStatusCode(HttpResponse::HTTP_OK);
-    } catch (ModelNotFoundException $e) {
-        return response()->json([
-            'error' => 'Discount id là ' . $id . ' không tồn tại',
-        ], HttpResponse::HTTP_NOT_FOUND);
     }
-}
 
     /**
      * Remove the specified resource from storage.
