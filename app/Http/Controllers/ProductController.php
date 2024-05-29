@@ -6,6 +6,7 @@ use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Resources\Product\ProductCollection;
 use App\Http\Resources\Product\ProductResource;
+use App\Models\Favourite;
 use App\Models\OrderDetail;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -36,6 +37,7 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         $dataCreate = $request->all();
+        dd($dataCreate);
         $check = Product::where('product_name', $dataCreate['product_name'])->exists();
         if ($check) {
             return response()->json([
@@ -85,50 +87,105 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, string $id)
     {
-        $product = $this->product->findOrFail($id);
+        try {
+            $product = Product::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Sản phẩm không tồn tại.',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
+
         $dataUpdate = $request->all();
-        $check = Product::where('product_name', $dataUpdate['product_name'])->exists();
+
+        // Check if the product name already exists (excluding the current product)
+        $check = Product::where('product_name', $dataUpdate['product_name'])
+            ->where('id', '!=', $id)
+            ->exists();
         if ($check) {
             return response()->json([
-                'error' => 'Sản phẩm này đã tồn tại!'
+                'error' => 'Sản phẩm này đã tồn tại!',
             ], HttpResponse::HTTP_CONFLICT);
         }
-        $product->update($dataUpdate);
-        $productResource = new ProductResource($product);
-        return response()->json([
-            'data' => $productResource,
-        ], HttpResponse::HTTP_OK);
-    }
 
+        try {
+            // Update product attributes
+            $product->product_name = $dataUpdate['product_name'];
+            $product->status = $dataUpdate['status'];
+            $product->note = $dataUpdate['note'];
+            $product->description = $dataUpdate['description'];
+            $product->price = $dataUpdate['price'];
+            $product->brand_id = $dataUpdate['brand_id'];
+            $product->category_id = $dataUpdate['category_id'];
+
+            // Handle image update if a new image is provided
+            if ($request->hasFile('image')) {
+                // Delete the old image
+                $oldImage = $product->image;
+                if ($oldImage && file_exists('uploads/product/' . $oldImage)) {
+                    unlink('uploads/product/' . $oldImage);
+                }
+
+                // Save the new image
+                $get_image = $dataUpdate['image'];
+                $path = 'uploads/product/';
+                $get_name_image = $get_image->getClientOriginalName();
+                $name_image = current(explode('.', $get_name_image));
+                $new_image = $name_image . rand(0, 99) . '.' . $get_image->getClientOriginalExtension();
+                $get_image->move($path, $new_image);
+                $product->image = $new_image;
+            }
+
+            $product->save();
+
+            return (new ProductResource($product))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Đã xảy ra lỗi khi cập nhật sản phẩm.',
+            ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $isUsedInOtherTable = OrderDetail::where('product_id', $id)->exists();
-        $isUsedInFavouriTable = OrderDetail::where('product_id', $id)->exists();
-        if ($isUsedInOtherTable || $isUsedInFavouriTable) {
+        try {
+            $isUsedInOrderDetailTable = OrderDetail::where('product_id', $id)->exists();
+            $isUsedInFavouriteTable = Favourite::where('product_id', $id)->exists();
+
+            if ($isUsedInOrderDetailTable || $isUsedInFavouriteTable) {
+                return response()->json([
+                    'error' => 'Sản phẩm này đã tồn tại trong hóa đơn hoặc danh sách yêu thích nên không thể xóa.',
+                ], HttpResponse::HTTP_CONFLICT);
+            }
+
+            $product = Product::findOrFail($id);
+
+            // Delete the product image if it exists
+            if ($product->image && file_exists('uploads/product/' . $product->image)) {
+                unlink('uploads/product/' . $product->image);
+            }
+
+            $product->delete();
+
             return response()->json([
-                'error' => 'Sản phẩm này đã tồn tại trong hóa đơn nên không thể xóa.',
-            ], HttpResponse::HTTP_CONFLICT);
+                'data' => new ProductResource($product),
+            ], HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Sản phẩm không tồn tại.',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Đã xảy ra lỗi khi xóa sản phẩm.',
+            ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
-        $product = $this->product->where('product_id', $id)->firstOrFail();
-        $product->delete();
-        $productResource = new ProductResource($product);
-        return response()->json([
-            'data' => $productResource,
-        ], HttpResponse::HTTP_OK);
     }
+
+
     /**
      * Search for products by product_name.
      */
-    public function search(Request $request)
-    {
-        $searchTerm = $request->input('search');
-
-        // Search for products with similar product_name
-        $products = Product::where('product_name', 'LIKE', "%$searchTerm%")->paginate(5);
-        return new ProductCollection($products);
-    }
-    
 }

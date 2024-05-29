@@ -25,11 +25,11 @@ class ProductDetailController extends Controller
      */
     public function index()
     {
-        
+
         $product_detailsResource = ProductDetail::all();
         return (new ProductDetailResource($product_detailsResource))
-                ->response()
-                ->setStatusCode(HttpResponse::HTTP_OK);
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**
@@ -41,17 +41,26 @@ class ProductDetailController extends Controller
         $check = ProductDetail::where('color_id', $dataCreate['color_id'])
             ->where('product_id', $dataCreate['product_id'])
             ->where('size_id', $dataCreate['size_id'])->exists();
-        if($check){
+
+        if ($check) {
             return response()->json([
                 'error' => 'Sản phẩm này đã tồn tại'
             ], HttpResponse::HTTP_CONFLICT);
         }
-        $product_detail = $this->product_detail->create($dataCreate);
-        $product_detailResource = new ProductDetailResource($product_detail);
-        return response()->json([
-            'data' => $product_detailResource,
-        ], HttpResponse::HTTP_OK);
+
+        try {
+            $product_detail = ProductDetail::create($dataCreate);
+            return (new ProductDetailResource($product_detail))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Đã xảy ra lỗi khi tạo chi tiết sản phẩm.',
+            ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+
+
 
     /**
      * Display the specified resource.
@@ -75,33 +84,63 @@ class ProductDetailController extends Controller
      */
     public function update(UpdateProductDetailRequest $request, string $id)
     {
-        $product_detail = $this->product_detail->findOrFail($id);
+        try {
+            $product_detail = ProductDetail::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Chi tiết sản phẩm không tồn tại.',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
+
         $dataUpdate = $request->all();
         $check = ProductDetail::where('color_id', $dataUpdate['color_id'])
             ->where('product_id', $dataUpdate['product_id'])
-            ->where('size_id', $dataUpdate['size_id'])->where('product_detail_id', '!=', $id)->exists();
-        if($check){
+            ->where('size_id', $dataUpdate['size_id'])
+            ->where('product_detail_id', '!=', $id)
+            ->exists();
+
+        if ($check) {
             return response()->json([
                 'error' => 'Sản phẩm này đã tồn tại'
             ], HttpResponse::HTTP_CONFLICT);
         }
-        $product_detail->update($dataUpdate);
-        $product_detailResource = new ProductDetailResource($product_detail);
-        return response()->json([
-            'data' => $product_detailResource,
-        ], HttpResponse::HTTP_OK);
+
+        try {
+            $product_detail->update($dataUpdate);
+            return (new ProductDetailResource($product_detail))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Đã xảy ra lỗi khi cập nhật chi tiết sản phẩm.',
+            ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $product_detail = $this->product_detail->where('product_detail_id', $id)->firstOrFail();
-        $product_detail->delete();
-        $product_detailResource = new ProductDetailResource($product_detail);
-        return response()->json([
-            'data' => $product_detailResource,
-        ], HttpResponse::HTTP_OK);
+        try {
+            $product_detail = ProductDetail::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Chi tiết sản phẩm không tồn tại.',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $product_detail->delete();
+            return (new ProductDetailResource($product_detail))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Đã xảy ra lỗi khi xóa chi tiết sản phẩm.',
+            ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
