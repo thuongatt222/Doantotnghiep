@@ -10,8 +10,6 @@ class Picture_library extends Model
     use HasFactory;
     protected $fillable = [
         'title',
-        'status',
-        'note',
         'image',
         'product_detail_id'
     ];

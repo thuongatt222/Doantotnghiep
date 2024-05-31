@@ -24,7 +24,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        
+
         $orderResource = Order::all();
         return new OrderCollection($orderResource);
     }
@@ -64,27 +64,47 @@ class OrderController extends Controller
      */
     public function update(UpdateOrderRequest $request, string $id)
     {
-        $order = $this->order->findOrFail($id);
-        $dataUpdate = $request->all();
-        $order->update($dataUpdate);
-        $orderResource = new OrderResource($order);
-        return response()->json([
-            'data' => $orderResource,
-        ], HttpResponse::HTTP_OK);
+        try {
+            $order = $this->order->findOrFail($id);
+            $dataUpdate = $request->all();
+            $order->update($dataUpdate);
+            $orderResource = new OrderResource($order);
+
+            return $orderResource->response()->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Không tìm thấy đơn hàng',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Đã xảy ra lỗi không mong muốn',
+            ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $order = $this->order->where('order_id', $id)->firstOrFail();
-        $order->delete();
-        $orderResource = new OrderResource($order);
-        return response()->json([
-            'data' => $orderResource,
-        ], HttpResponse::HTTP_OK);
+        try {
+            $order = $this->order->where('order_id', $id)->firstOrFail();
+            $order->delete();
+            $orderResource = new OrderResource($order);
+
+            return $orderResource->response()->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Không tìm thấy đơn hàng',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Đã xảy ra lỗi không mong muốn',
+            ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     public function profit()
     {
@@ -94,7 +114,7 @@ class OrderController extends Controller
             ->get();
     }
 
-    public function confOrder(){
-        
+    public function confOrder()
+    {
     }
 }

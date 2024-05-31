@@ -78,9 +78,10 @@ class PictureLibraryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Picture_library $picture_library)
+    public function show($id)
     {
-        //
+        $pictures  = new PictureCollection(Picture::where('product_detail_id', $id)->get());
+        return $pictures;
     }
 
     /**
