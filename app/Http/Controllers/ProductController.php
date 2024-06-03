@@ -6,9 +6,8 @@ use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Resources\Product\ProductCollection;
 use App\Http\Resources\Product\ProductResource;
-use App\Models\Favourite;
-use App\Models\OrderDetail;
 use App\Models\Product;
+use App\Models\Favourite;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -86,6 +85,7 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, string $id)
     {
+        $dataUpdate = $request->all();
         try {
             $product = Product::findOrFail($id);
         } catch (ModelNotFoundException $e) {
@@ -94,11 +94,11 @@ class ProductController extends Controller
             ], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $dataUpdate = $request->all();
+
 
         // Check if the product name already exists (excluding the current product)
         $check = Product::where('product_name', $dataUpdate['product_name'])
-            ->where('id', '!=', $id)
+            ->where('product_id', '!=', $id)
             ->exists();
         if ($check) {
             return response()->json([
@@ -150,37 +150,30 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        try {
-            $isUsedInOrderDetailTable = OrderDetail::where('product_id', $id)->exists();
-            $isUsedInFavouriteTable = Favourite::where('product_id', $id)->exists();
+        $isUsedInFavouriteTable = Favourite::where('product_id', $id)->exists();
 
-            if ($isUsedInOrderDetailTable || $isUsedInFavouriteTable) {
-                return response()->json([
-                    'error' => 'Sản phẩm này đã tồn tại trong hóa đơn hoặc danh sách yêu thích nên không thể xóa.',
-                ], HttpResponse::HTTP_CONFLICT);
-            }
-
-            $product = Product::findOrFail($id);
-
-            // Delete the product image if it exists
-            if ($product->image && file_exists('uploads/product/' . $product->image)) {
-                unlink('uploads/product/' . $product->image);
-            }
-
-            $product->delete();
-
+        if ($isUsedInFavouriteTable) {
             return response()->json([
-                'data' => new ProductResource($product),
-            ], HttpResponse::HTTP_OK);
+                'error' => 'Sản phẩm này đã tồn tại trong danh sách yêu thích nên không thể xóa.',
+            ], HttpResponse::HTTP_CONFLICT);
+        }
+        try {
+            $product = Product::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Sản phẩm không tồn tại.',
             ], HttpResponse::HTTP_NOT_FOUND);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Đã xảy ra lỗi khi xóa sản phẩm.',
-            ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
+        // Delete the product image if it exists
+        if ($product->image && file_exists('uploads/product/' . $product->image)) {
+            unlink('uploads/product/' . $product->image);
+        }
+
+        $product->delete();
+
+        return response()->json([
+            'data' => new ProductResource($product),
+        ], HttpResponse::HTTP_OK);
     }
 
 

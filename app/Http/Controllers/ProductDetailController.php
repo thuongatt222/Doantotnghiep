@@ -7,6 +7,8 @@ use App\Http\Requests\ProductDetail\UpdateProductDetailRequest;
 use App\Http\Resources\ProductDetail\ProductDetailResource;
 use App\Models\Color;
 use App\Models\Product;
+
+use App\Models\OrderDetail;
 use App\Models\ProductDetail;
 use App\Models\size;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -125,6 +127,14 @@ class ProductDetailController extends Controller
     public function destroy(string $id)
     {
         try {
+
+            $isUsedInOrderDetailTable = OrderDetail::where('product_detail_id', $id)->exists();
+
+            if ($isUsedInOrderDetailTable) {
+                return response()->json([
+                    'error' => 'Sản phẩm này đã tồn tại trong hóa đơn nên không thể xóa.',
+                ], HttpResponse::HTTP_CONFLICT);
+            }
             $product_detail = ProductDetail::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             return response()->json([

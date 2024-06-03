@@ -32,3 +32,6 @@ use Illuminate\Support\Facades\Route;
 // });
 // Route::get('auth/google', [AccountController::class, 'redirectToGoogle'])->name('auth.google');
 // Route::get('auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
+Route::get('/', function () {
+    return view('formdata');
+});

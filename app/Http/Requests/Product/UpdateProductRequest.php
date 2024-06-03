@@ -29,10 +29,10 @@ class UpdateProductRequest extends FormRequest
             'price' => 'required',
             'brand_id' => 'required',
             'category_id' => 'required',
-            'image' => 'image|mimes:png,jpg,gif,svg,jpeg|max:2048|dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000',
             'description' => 'required',
             'note' => 'nullable|string',
             'status' => 'required',
+            'image' => 'image|mimes:png,jpg,gif,svg,jpeg|max:2048|dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000',
         ];
     }
     protected function failedValidation(Validator $validator)
