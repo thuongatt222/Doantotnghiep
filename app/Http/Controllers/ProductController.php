@@ -37,7 +37,6 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         $dataCreate = $request->all();
-        dd($dataCreate);
         $check = Product::where('product_name', $dataCreate['product_name'])->exists();
         if ($check) {
             return response()->json([

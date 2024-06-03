@@ -53,7 +53,7 @@ Route::apiResource('order', OrderController::class)->only('index', 'store', 'upd
 Route::apiResource('discount', DiscountController::class)->only('index', 'store', 'update', 'destroy', 'show');
 Route::apiResource('voucher', VoucherController::class)->only('index', 'store', 'update', 'destroy', 'show');
 Route::apiResource('favourite', FavouriteController::class)->only('index', 'store','destroy');
-Route::apiResource('library', PictureLibraryController::class)->only('index', 'store','destroy');
+Route::apiResource('library', PictureLibraryController::class)->only('index', 'store','destroy','show');
 Route::post('/cart', [OrderDetailController::class, 'cart']);
 Route::delete('/cart/remove', [OrderDetailController::class, 'removeFromCart']);
 Route::get('/cart', [OrderDetailController::class, 'showCart']);
