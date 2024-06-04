@@ -35,6 +35,10 @@
             <input type="number" id="price" name="price" required>
         </div>
         <div>
+            <label for="price">Discount:</label>
+            <input type="number" id="discount" name="discount" >
+        </div>
+        <div>
             <label for="brand_id">Brand ID:</label>
             <input type="text" id="brand_id" name="brand_id" required>
         </div>
@@ -55,6 +59,7 @@
             var productId = document.getElementById('product_id').value;
             var formAction = "{{ url('/api/product') }}/" + productId;
             this.action = formAction;
+            alert('sdadasdasd');
             this.submit();
         });
     </script>

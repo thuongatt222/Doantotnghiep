@@ -29,7 +29,7 @@ class UpdateProductRequest extends FormRequest
             'price' => 'required',
             'brand_id' => 'required',
             'category_id' => 'required',
-            'discount' => 'required',
+            'discount' => 'nullable|float',
             'description' => 'required',
             'note' => 'nullable|string',
             'status' => 'required',
