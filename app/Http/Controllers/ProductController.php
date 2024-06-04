@@ -48,6 +48,7 @@ class ProductController extends Controller
         $product->note = $dataCreate['note'];
         $product->description = $dataCreate['description'];
         $product->price = $dataCreate['price'];
+        $product->discount = $dataCreate['discount'];
         $get_image = $dataCreate['image'];
         $path = 'uploads/product/';
         $get_name_image = $get_image->getClientOriginalName();
@@ -113,6 +114,7 @@ class ProductController extends Controller
             $product->note = $dataUpdate['note'];
             $product->description = $dataUpdate['description'];
             $product->price = $dataUpdate['price'];
+            $product->discount = $dataUpdate['discount'];
             $product->brand_id = $dataUpdate['brand_id'];
             $product->category_id = $dataUpdate['category_id'];
 
