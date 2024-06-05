@@ -18,4 +18,8 @@ class ProductDetail extends Model
     ];
     protected $primaryKey = 'product_detail_id';
     protected $table = 'product_detail';
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'product_id');
+    }
 }

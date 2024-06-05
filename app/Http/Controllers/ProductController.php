@@ -26,7 +26,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+        $products = Product::withCount('productDetails')->get();
         return new ProductCollection($products);
     }
 
