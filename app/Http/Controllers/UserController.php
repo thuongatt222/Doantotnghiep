@@ -48,12 +48,22 @@ class UserController extends Controller
         $user->name = $dataCreate['name'];
         $user->email = $dataCreate['email'];
         $user->password = bcrypt($dataCreate['password']);
-        $user->avatar = $dataCreate['avatar'] ?? 'avatar.jpg';
-        $user->address = $dataCreate['address'];
-        $user->phone = $dataCreate['phone'];
+        $get_image = $dataCreate['avatar'];
+        if ($get_image) {
+            $path = 'uploads/avatar/';
+            $get_name_image = $get_image->getClientOriginalName();
+            $name_image = current(explode('.', $get_name_image));
+            $new_image = $name_image . rand(0, 99) . '.' . $get_image->getClientOriginalExtension();
+            $get_image->move($path, $new_image);
+            $user->avatar = $new_image;
+        }else{
+            $user->avatar = 'avatar.jpg';
+        }
+        $user->address = $dataCreate['address'] ?? null;
+        $user->phone = $dataCreate['phone'] ?? null;
         $user->role = $dataCreate['role'];
         $user->status = $dataCreate['status'] ?? 1;
-        $user->note = $dataCreate['note'];
+        $user->note = $dataCreate['note'] ?? null;
         $user->save();
         $cart = new Cart();
         $cart->user_id = $user->user_id;
@@ -103,6 +113,19 @@ class UserController extends Controller
         $user->email = $dataUpdate['email'];
         if (isset($dataUpdate['password'])) {
             $user->password = bcrypt($dataUpdate['password']);
+        }
+        $get_image = $dataUpdate['avatar'];
+        if ($get_image) {
+            $path_unlink = 'uploads/avatar/' . $user->avatar;
+            if (file_exists($path_unlink)) {
+                unlink($path_unlink);
+            }
+            $path = 'uploads/avatar/';
+            $get_name_image = $get_image->getClientOriginalName();
+            $name_image = current(explode('.', $get_name_image));
+            $new_image = $name_image . rand(0, 99) . '.' . $get_image->getClientOriginalExtension();
+            $get_image->move($path, $new_image);
+            $user->avatar = $new_image;
         }
         $user->address = $dataUpdate['address'];
         $user->phone = $dataUpdate['phone'];
