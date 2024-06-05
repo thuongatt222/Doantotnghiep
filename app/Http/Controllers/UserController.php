@@ -48,7 +48,7 @@ class UserController extends Controller
         $user->name = $dataCreate['name'];
         $user->email = $dataCreate['email'];
         $user->password = bcrypt($dataCreate['password']);
-        $user->avatar = $dataCreate['avatar'] ?? 'uploads/avatar/avatar.jpg';
+        $user->avatar = $dataCreate['avatar'] ?? 'avatar.jpg';
         $user->address = $dataCreate['address'];
         $user->phone = $dataCreate['phone'];
         $user->role = $dataCreate['role'];
