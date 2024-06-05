@@ -27,11 +27,12 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'required',
             'email' => 'required',
-            'password' => 'required',
+            'password' => 'nullable',
             'role' => 'required',
             'note' => 'nullable|string',
+            'phone' => 'nullable|string',
+            'address' => 'nullable|string',
             'status' => 'required',
-            
         ];
     }
     protected function failedValidation(Validator $validator)

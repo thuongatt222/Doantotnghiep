@@ -6,6 +6,7 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\User\UserCollection;
 use App\Http\Resources\User\UserResource;
+use App\Models\Cart;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -24,11 +25,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        
+
         $usersResource = User::all();
         return (new UserCollection($usersResource))
-        ->response()
-        ->setStatusCode(HttpResponse::HTTP_OK);
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**
@@ -38,16 +39,28 @@ class UserController extends Controller
     {
         $dataCreate = $request->all();
         $check = User::where('email', $dataCreate['email'])->exists();
-        if($check){
+        if ($check) {
             return response()->json([
                 'error' => 'email đã tồn tại!'
             ], HttpResponse::HTTP_CONFLICT);
         }
-        $user = $this->user->create($dataCreate);
-        $userResource = new UserResource($user);
-        return response()->json([
-            'data' => $userResource,
-        ], HttpResponse::HTTP_OK);
+        $user = new User();
+        $user->name = $dataCreate['name'];
+        $user->email = $dataCreate['email'];
+        $user->password = bcrypt($dataCreate['password']);
+        $user->avatar = $dataCreate['avatar'] ?? 'uploads/avatar/avatar.jpg';
+        $user->address = $dataCreate['address'];
+        $user->phone = $dataCreate['phone'];
+        $user->role = $dataCreate['role'];
+        $user->status = $dataCreate['status'] ?? 1;
+        $user->note = $dataCreate['note'];
+        $user->save();
+        $cart = new Cart();
+        $cart->user_id = $user->user_id;
+        $cart->save();
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
     /**
@@ -74,29 +87,44 @@ class UserController extends Controller
     {
         $user = $this->user->findOrFail($id);
         $dataUpdate = $request->all();
-        $check = User::where('email', $dataUpdate['email'])->exists();
-        if($check){
-            return response()->json([
-                'error' => 'email đã tồn tại!'
-            ], HttpResponse::HTTP_CONFLICT);
+
+        // Check if the email is being updated and if it already exists
+        if ($user->email !== $dataUpdate['email']) {
+            $check = User::where('email', $dataUpdate['email'])->exists();
+            if ($check) {
+                return response()->json([
+                    'error' => 'email đã tồn tại!'
+                ], HttpResponse::HTTP_CONFLICT);
+            }
         }
-        $user->update($dataUpdate);
-        $userResource = new UserResource($user);
-        return response()->json([
-            'data' => $userResource,
-        ], HttpResponse::HTTP_OK);
+
+        // Update user fields individually
+        $user->name = $dataUpdate['name'];
+        $user->email = $dataUpdate['email'];
+        if (isset($dataUpdate['password'])) {
+            $user->password = bcrypt($dataUpdate['password']);
+        }
+        $user->address = $dataUpdate['address'];
+        $user->phone = $dataUpdate['phone'];
+        $user->role = $dataUpdate['role'];
+        $user->status = $dataUpdate['status'];
+        $user->note = $dataUpdate['note'];
+        $user->save();
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $user = $this->user->where('size_id', $id)->firstOrFail();
+        $user = $this->user->where('user_id', $id)->firstOrFail();
         $user->delete();
-        $userResource = new UserResource($user);
-        return response()->json([
-            'data' => $userResource,
-        ], HttpResponse::HTTP_OK);
+        return (new UserResource($user))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 }

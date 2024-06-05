@@ -30,8 +30,8 @@ class StoreUserRequest extends FormRequest
             'password' => 'required',
             'role' => 'required',
             'note' => 'nullable|string',
-            'status' => 'required',
-            
+            'phone' => 'nullable|string',
+            'address' => 'nullable|string',
         ];
     }
     protected function failedValidation(Validator $validator)
