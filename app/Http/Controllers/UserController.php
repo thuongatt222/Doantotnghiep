@@ -48,17 +48,20 @@ class UserController extends Controller
         $user->name = $dataCreate['name'];
         $user->email = $dataCreate['email'];
         $user->password = bcrypt($dataCreate['password']);
-        $get_image = $dataCreate['avatar'];
-        if ($get_image) {
+
+        // Kiểm tra xem có tệp ảnh được gửi kèm trong yêu cầu không
+        if ($request->hasFile('avatar')) {
+            $get_image = $request->file('avatar');
             $path = 'uploads/avatar/';
             $get_name_image = $get_image->getClientOriginalName();
             $name_image = current(explode('.', $get_name_image));
             $new_image = $name_image . rand(0, 99) . '.' . $get_image->getClientOriginalExtension();
             $get_image->move($path, $new_image);
             $user->avatar = $new_image;
-        }else{
+        } else {
             $user->avatar = 'avatar.jpg';
         }
+
         $user->address = $dataCreate['address'] ?? null;
         $user->phone = $dataCreate['phone'] ?? null;
         $user->role = $dataCreate['role'];
@@ -72,6 +75,7 @@ class UserController extends Controller
             ->response()
             ->setStatusCode(HttpResponse::HTTP_OK);
     }
+
 
     /**
      * Display the specified resource.
