@@ -27,7 +27,7 @@ class ResetAccountRequest extends FormRequest
         return [
             'email' => 'required|email|exists:users,email',
             'password' => 'required|min:6|max:30',
-            'confirm-password' => 'required|same:password',
+            'confirm_password' => 'required|same:password',
         ];
     }
     protected function failedValidation(Validator $validator)

@@ -25,10 +25,10 @@ class StoreAccountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:6|max:30',
-            'confirm-password' => 'required|same:password',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            'confirm_password' => 'required|same:password',
         ];
     }
     protected function failedValidation(Validator $validator)

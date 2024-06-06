@@ -28,7 +28,7 @@ class UpdateAccountRequest extends FormRequest
             'name' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:6|max:30',
-            'confirm-password' => 'required|same:password',
+            'confirm_password' => 'required|same:password',
         ];
     }
     protected function failedValidation(Validator $validator)

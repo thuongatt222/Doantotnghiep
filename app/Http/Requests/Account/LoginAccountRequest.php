@@ -27,6 +27,7 @@ class LoginAccountRequest extends FormRequest
         return [
             'email' => 'required|email|exists:users,email',
             'password' => 'required|min:6|max:30',
+            'remember' => 'sometimes|boolean',
         ];
     }
     protected function failedValidation(Validator $validator)

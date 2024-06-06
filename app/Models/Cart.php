@@ -13,4 +13,8 @@ class Cart extends Model
     ];
     protected $primaryKey = 'cart_id';
     protected $table = 'carts';
+    public function details()
+    {
+        return $this->hasMany(CartDetail::class);
+    }
 }

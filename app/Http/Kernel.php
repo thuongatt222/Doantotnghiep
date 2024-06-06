@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
     ];
     protected $routeMiddleware = [
         'cors' => \Illuminate\Http\Middleware\HandleCors::class,
+        'auth' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
     ];
 }

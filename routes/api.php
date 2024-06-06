@@ -59,9 +59,7 @@ Route::group(['middleware' => 'cors'], function () {
     Route::apiResource('voucher', VoucherController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('favourite', FavouriteController::class)->only('index', 'store', 'destroy');
     Route::apiResource('library', PictureLibraryController::class)->only('index', 'store', 'destroy', 'show');
-    // Route::post('/cart', [OrderDetailController::class, 'cart']);
-    // Route::delete('/cart/remove', [OrderDetailController::class, 'removeFromCart']);
-    // Route::get('/cart', [OrderDetailController::class, 'showCart']);
+    Route::get('verify/{id}', [AccountController::class, 'verifyEmail'])->name('account.verify');
     Route::group([
 
         'middleware' => 'api',
@@ -69,9 +67,15 @@ Route::group(['middleware' => 'cors'], function () {
 
     ], function ($router) {
 
-        Route::post('login', [AccountController::class, 'login_admin']);
-        Route::post('logout', [AccountController::class, 'logout_admin']);
+        Route::post('login', [AccountController::class, 'login']);
+        Route::post('register', [AccountController::class, 'register']);
+        Route::post('logout', [AccountController::class, 'logout']);
         Route::post('refresh', [AccountController::class, 'refresh']);
         Route::post('me', [AccountController::class, 'me']);
+        
+    });
+    Route::middleware('auth:api')->group(function () {
+        Route::post('add-to-cart', [CartController::class, 'cart']);
+        Route::post('password/change', [AccountController::class, 'changePassword']);
     });
 });

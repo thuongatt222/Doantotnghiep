@@ -7,58 +7,68 @@ use App\Http\Requests\Account\LoginAccountRequest;
 use App\Http\Requests\Account\ResetAccountRequest;
 use App\Http\Requests\Account\StoreAccountRequest;
 use App\Mail\ResetPassword;
+use App\Models\Cart;
 use App\Mail\VerifyAccount;
+use App\Models\PasswordResetToken;
 use App\Models\User;
 use Exception;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail as FacadesMail;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class AccountController extends Controller 
+class AccountController extends Controller
 {
-    public function login()
+    public function __construct()
     {
-        return view('Login/index');
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'verifyEmail', 'redirectToGoogle', 'handleGoogleCallback']]);
     }
 
-    public function check_login(LoginAccountRequest $req)
+    //register
+    public function register(StoreAccountRequest $request)
     {
-        
-        $data = $req->only('email', 'password');
-        $check = Auth::attempt($data);
-        if ($check) {
-            $user = Auth::user();
-            if ($user->role == 0) {
-                return redirect()->route('customer');
-            } elseif ($user->role == 1) {
-                return redirect()->route('admin');
+        $data = $request->only('name', 'email');
+        $data['password'] = Hash::make($request->password);
+        $data['role'] = 0;
+        $data['status'] = 1;
+        $data['avatar'] = 'avatar.jpg';
+        $user = User::create($data);
+
+        // Send verification email
+        if ($user) {
+            try {
+                FacadesMail::to($user->email)->send(new VerifyAccount($user));
+                $cart = new Cart();
+                $cart->user_id = $user->user_id;
+                $cart->save();
+                return response()->json(['message' => 'Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản của bạn.'], 200);
+            } catch (\Exception $e) {
+                $user->delete();
+                return response()->json([
+                    'message' => 'Không thể gửi email, vui lòng thử lại.'
+                ], 500);
             }
         }
-        flash()->addWarning('Tên đăng nhập hoặc mật khẩu không đúng.');
-        return redirect()->route('login');
+        return response()->json(['message' => 'Tạo tài khoản bị lỗi.'], 500);
     }
-
-    
-
-    public function check_register(StoreAccountRequest $req)
+    //verify Email
+    public function verifyEmail(Request $request, $id)
     {
-        $data = $req->only('name', 'email');
-        $data['avatar'] = 'public/avatar.jpg';
-        $data['password'] = bcrypt($req->password);
-        if ($acc = User::create($data)) {
-            FacadesMail::to($acc->email)->send(new VerifyAccount($acc));
-            return redirect()->route('account.login');
+        if (!$request->hasValidSignature()) {
+            return response()->json(['message' => 'url không hợp lệ/hết hạn được cung cấp'], 401);
         }
-        return redirect()->back();
+        $user = User::where('user_id', $id)->firstOrFail();
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        } else {
+            return response()->json(['message' => 'Email đã được xác nhận.'], 400);
+        }
+        return response()->json(['message' => 'Email xác nhận thành công!'], 200);
     }
-    public function verify($email)
-    {
-        User::where('email', $email)->whereNull('email_verified_at')->firstOrFail();
-        User::where('email', $email)->update(['email_verified_at' => date('Y-m-d')]);
-        return redirect()->route('account.login');
-    }
+    // login with google
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->redirect();
@@ -92,68 +102,12 @@ class AccountController extends Controller
             dd($e->getMessage());
         }
     }
-    public function profile()
-    {
-
-    }
-
-    public function check_profile()
-    {
-
-    }
-    public function change_password()
-    {
-
-    }
-
-    public function check_change_password()
-    {
-
-    }
-    public function check_forgot_password(ForgotAccountRequest $req)
-    {
-        $data = $req->only('email');
-        $account = User::where('email', $data)->first();
-        if ($account) {
-            FacadesMail::to($account->email)->send(new ResetPassword($account));
-        }
-        flash()->addError('Tài khoản này không tồn tại.');
-        return redirect()->route('account.login');
-    }
-    public function reset_password(ForgotAccountRequest $req)
-    {
-        return view('login.changepass', $req);
-    }
-
-    public function check_reset_password(ResetAccountRequest $req)
-    {
-        User::where('email', $req->email)->update(['password' => $req->password]);
-        return redirect()->route('account.login');
-    }
-    public function logout(){
-        Auth::logout();
-        return redirect()->back();
-    }
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => ['login']]);
-    }
-
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function login_admin()
+    //login
+    public function login()
     {
         $credentials = request(['email', 'password']);
 
-        if (! $token = auth('api')->attempt($credentials)) {
+        if (!$token = auth('api')->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
@@ -175,7 +129,7 @@ class AccountController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout_admin()
+    public function logout()
     {
         auth()->logout();
 
@@ -207,5 +161,35 @@ class AccountController extends Controller
             'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
     }
+    public function check_forgot_password(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|exists:users',
+        ]);
+        $user = User::where('email', $request->email)->first();
+        $token = \Str::random(100);
+        $tokenData = [
+            'token' => $token,
+            'email' => $request->email,
+        ];
+        if (PasswordResetToken::create($tokenData)) {
+            FacadesMail::to($request->email)->send(new ResetPassword($user, $token));
+            return response()->json(['message' => 'Kiểm tra email để tiếp tục'], 200);
+        }
+        return response()->json(['message' => 'Đã xảy ra lỗi, vui lòng kiểm tra lại.'], 500);
+    }
+    public function reset_password(Request $request, $token)
+    {
+        $request->validate(['password' => 'require|min:6|confirmed']);
+        $tokenData = PasswordResetToken::checkToken($token);
+        $user = $tokenData->user;
+        $data = [
+            'password' => bcrypt($request->password),
+        ];
+        $check = $user->update($data);
+        if ($check) {
+            return response()->json(['message' => 'Cập nhật mật khẩu thành công.'], 200);
+        }
+        return response()->json(['message' => 'Đã xảy ra lỗi, vui lòng kiểm tra lại.'], 500);
+    }
 }
-

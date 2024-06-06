@@ -17,9 +17,11 @@ class ResetPassword extends Mailable
      * Create a new message instance.
      */
     public $account;
-    public function __construct($account)
+    public $token;
+    public function __construct($account, $token)
     {
         $this->account = $account;
+        $this->token = $token;
     }
 
     /**
@@ -38,7 +40,7 @@ class ResetPassword extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'Emails.ResetPassword',
+            view: 'emails.ResetPassword',
         );
     }
 
