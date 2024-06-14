@@ -16,7 +16,6 @@ return new class extends Migration
             $table->integer('status');
             $table->string('payment_method')->unique();
             $table->timestamps();
-            $table->text('note')->nullable();
         });
     }
 

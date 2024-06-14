@@ -82,9 +82,9 @@ class CartController extends Controller
         $user = Auth::user();
         $userId = $user->user_id;
 
-
         // Find or create a cart for the user
         $cart = Cart::firstOrCreate(['user_id' => $userId]);
+
         try {
             // Find the product detail
             $productDetail = ProductDetail::findOrFail($productDetailId);
@@ -98,13 +98,12 @@ class CartController extends Controller
             'cart_id' => $cart->cart_id,
             'product_detail_id' => $productDetailId,
         ]);
-
+        
         // Update the quantity
         $cartDetail->quantity += $quantity;
         $cartDetail->save();
-
         // Retrieve updated cart details
-        $cartDetails = CartDetail::where('cart_id', $cart->id)->get();
+        $cartDetails = CartDetail::where('cart_id', $cart->cart_id)->get();
 
         // Prepare cart data to return
         $cartData = $cartDetails->map(function ($detail) {

@@ -44,7 +44,6 @@ class ColorController extends Controller
         $color = new Color();
         $color->color = $dataCreate['color'];
         $color->status = $dataCreate['status'];
-        $color->note = $dataCreate['note'];
         $color->save();
         return (new ColorResource($color))
             ->response()
@@ -84,7 +83,6 @@ class ColorController extends Controller
             }
             $color->color = $dataUpdate['color'];
             $color->status = $dataUpdate['status'];
-            $color->note = $dataUpdate['note'];
             $color->save();
             return (new ColorResource($color))
                 ->response()

@@ -22,7 +22,6 @@ return new class extends Migration
             $table->foreign('product_id')->references('product_id')->on('product');
             $table->timestamps();
             $table->integer('status');
-            $table->text('note')->nullable();
         });
     }
 

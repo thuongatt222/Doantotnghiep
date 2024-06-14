@@ -18,7 +18,6 @@ class SizeResource extends JsonResource
             'size_id' => $this->size_id,
             'size' => $this->size,
             'status' => $this->status,
-            'note' => $this->note,
         ];
     }
 }

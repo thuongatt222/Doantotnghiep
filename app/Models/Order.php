@@ -19,8 +19,11 @@ class Order extends Model
         'user_id',
         'voucher_id',
         'employee_id',
-        'note',
     ];
     protected $primaryKey = 'order_id';
     protected $table = 'order';
+    public function orderDetails()
+    {
+        return $this->hasMany(OrderDetail::class, 'order_id', 'order_id');
+    }
 }

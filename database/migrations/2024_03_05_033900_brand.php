@@ -16,7 +16,6 @@ return new class extends Migration
             $table->integer('status');
             $table->string('brand_name')->unique();
             $table->timestamps();
-            $table->text('note')->nullable();
         });
     }
 

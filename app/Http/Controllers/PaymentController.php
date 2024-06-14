@@ -44,7 +44,6 @@ class PaymentController extends Controller
         $payment = new Payment();
         $payment->payment_method = $dataCreate['payment_method'];
         $payment->status = $dataCreate['status'];
-        $payment->note = $dataCreate['note'];
         $payment->save();
         return (new PaymentResource($payment))
             ->response()
@@ -84,7 +83,6 @@ class PaymentController extends Controller
             }
             $payment->payment_method = $dataUpdate['payment_method'];
             $payment->status = $dataUpdate['status'];
-            $payment->note = $dataUpdate['note'];
             $payment->save();
             return (new PaymentResource($payment))
                 ->response()

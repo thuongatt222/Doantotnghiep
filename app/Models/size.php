@@ -11,7 +11,6 @@ class Size extends Model
     protected $fillable = [
         'size',
         'status',
-        'note',
     ];
     protected $table = 'sizes';
     protected $primaryKey = 'size_id';

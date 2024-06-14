@@ -26,7 +26,6 @@ class UpdateColorRequest extends FormRequest
     {
         return [
             'color' => 'required',
-            'note' => 'nullable|string',
             'status' => 'required',
         ];
     }

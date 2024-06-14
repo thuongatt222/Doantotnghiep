@@ -46,7 +46,6 @@ class VoucherController extends Controller
         $voucher->start_day = $dataCreate['start_day'];
         $voucher->end_day = $dataCreate['end_day'];
         $voucher->status = $dataCreate['status'];
-        $voucher->note = $dataCreate['note'];
         $voucher->save();
         return (new VoucherResource($voucher))
             ->response()
@@ -89,7 +88,6 @@ class VoucherController extends Controller
             $voucher->start_day = $dataUpdate['start_day'];
             $voucher->end_day = $dataUpdate['end_day'];
             $voucher->status = $dataUpdate['status'];
-            $voucher->note = $dataUpdate['note'];
             $voucher->save();
             return (new VoucherResource($voucher))
                 ->response()

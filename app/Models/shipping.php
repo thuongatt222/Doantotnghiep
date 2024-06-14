@@ -11,7 +11,6 @@ class Shipping extends Model
     protected $fillable = [
         'shipping_method',
         'status',
-        'note'
     ];
     protected $primaryKey = 'shipping_method_id';
     protected $table = 'shipping_method';

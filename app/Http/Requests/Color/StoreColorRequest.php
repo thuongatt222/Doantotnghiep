@@ -26,7 +26,6 @@ class StoreColorRequest extends FormRequest
     {
         return [
             'color' => 'required',
-            'note' => 'nullable|string',
             'status' => 'required',
         ];
     }

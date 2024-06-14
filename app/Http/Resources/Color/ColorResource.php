@@ -18,7 +18,6 @@ class ColorResource extends JsonResource
             'color_id' => $this->color_id,
             'color' => $this->color,
             'status' => $this->status,
-            'note' => $this->note,
         ];
     }
 }

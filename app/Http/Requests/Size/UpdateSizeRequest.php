@@ -28,7 +28,6 @@ class UpdateSizeRequest extends FormRequest
     {
         return [
             'size' => 'required',
-            'note' => 'nullable|string',
             'status' => 'required',
         ];
     }

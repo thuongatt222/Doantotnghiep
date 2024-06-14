@@ -28,7 +28,6 @@ class UpdateSliderRequest extends FormRequest
             'title' => 'required|string|max:255',
             'image' => 'image|mimes:png,jpg,gif,svg,jpeg|max:2048|dimensions:min_width=100,min_height=100,max_width=2000,max_height=2000',
             'status' => 'required|integer|in:0,1',
-            'note' => 'nullable|string',
         ];
     }
     protected function failedValidation(Validator $validator)

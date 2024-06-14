@@ -42,7 +42,6 @@ class BrandController extends Controller
             $brand = new Brand();
             $brand->brand_name = $dataCreate['brand_name'];
             $brand->status = $dataCreate['status'];
-            $brand->note = $dataCreate['note'];
             $brand->save();
             return (new BrandResource($brand))
                 ->response()
@@ -83,7 +82,6 @@ class BrandController extends Controller
             }
             $brand->brand_name = $dataUpdate['brand_name'];
             $brand->status = $dataUpdate['status'];
-            $brand->note = $dataUpdate['note'];
             $brand->save();
             return (new BrandResource($brand))
                 ->response()

@@ -66,7 +66,6 @@ class UserController extends Controller
         $user->phone = $dataCreate['phone'] ?? null;
         $user->role = $dataCreate['role'];
         $user->status = $dataCreate['status'] ?? 1;
-        $user->note = $dataCreate['note'] ?? null;
         $user->save();
         $cart = new Cart();
         $cart->user_id = $user->user_id;
@@ -135,7 +134,6 @@ class UserController extends Controller
         $user->phone = $dataUpdate['phone'];
         $user->role = $dataUpdate['role'];
         $user->status = $dataUpdate['status'];
-        $user->note = $dataUpdate['note'];
         $user->save();
         return (new UserResource($user))
             ->response()

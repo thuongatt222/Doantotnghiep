@@ -17,7 +17,6 @@ class Product extends Model
         'discount',
         'category_id',
         'status',
-        'note'
     ];
     protected $primaryKey = 'product_id';
     protected $table = 'product';

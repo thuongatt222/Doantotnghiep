@@ -14,7 +14,6 @@ class Voucher extends Model
         'start_day',
         'end_day',
         'status',
-        'note'
     ];
     protected $primaryKey = 'voucher_id';
     protected $table = 'voucher';

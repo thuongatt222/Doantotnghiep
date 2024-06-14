@@ -13,8 +13,16 @@ class OrderDetail extends Model
         'price',
         'product_detail_id',
         'order_id',
-        'note',
     ];
     protected $primaryKey = 'order_detail_id';
     protected $table = 'order_detail';
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'order_id', 'order_id');
+    }
+
+    public function productDetail()
+    {
+        return $this->belongsTo(ProductDetail::class, 'product_detail_id', 'product_detail_id');
+    }
 }

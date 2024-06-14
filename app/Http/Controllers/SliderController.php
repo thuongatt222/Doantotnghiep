@@ -46,7 +46,6 @@ class SliderController extends Controller
         $slider = new Slider();
         $slider->title = $dataCreate['title'];
         $slider->status = $dataCreate['status'];
-        $slider->note = $dataCreate['note'];
         $get_image = $dataCreate['image'];
         $path = 'uploads/slider/';
         $get_name_image = $get_image->getClientOriginalName();

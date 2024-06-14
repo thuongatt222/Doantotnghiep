@@ -44,7 +44,6 @@ class CategoryController extends Controller
         $category = new Category();
         $category->category_name = $dataCreate['category_name'];
         $category->status = $dataCreate['status'];
-        $category->note = $dataCreate['note'];
         $category->save();
         return (new CategoryResource($category))
             ->response()
@@ -84,7 +83,6 @@ class CategoryController extends Controller
             }
             $category->category_name = $dataUpdate['category_name'];
             $category->status = $dataUpdate['status'];
-            $category->note = $dataUpdate['note'];
             $category->save();
             return (new CategoryResource($category))
                 ->response()

@@ -42,7 +42,6 @@ class SizeController extends Controller
         $size = new Size();
         $size->size = $dataCreate['size'];
         $size->status = $dataCreate['status'];
-        $size->note = $dataCreate['note'];
         $size->save();
         return (new SizeResource($size))
             ->response()
@@ -82,7 +81,6 @@ class SizeController extends Controller
             }
             $size->size = $dataUpdate['size'];
             $size->status = $dataUpdate['status'];
-            $size->note = $dataUpdate['note'];
             $size->save();
             return (new SizeResource($size))
                 ->response()

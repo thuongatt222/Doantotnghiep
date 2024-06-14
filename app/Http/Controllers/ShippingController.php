@@ -43,7 +43,6 @@ class ShippingController extends Controller
         $shipping = new Shipping();
         $shipping->shipping_method = $dataCreate['shipping_method'];
         $shipping->status = $dataCreate['status'];
-        $shipping->note = $dataCreate['note'];
         $shipping->save();
         return (new ShippingResource($shipping))
             ->response()
@@ -83,7 +82,6 @@ class ShippingController extends Controller
             }
             $shipping->shipping_method = $dataUpdate['shipping_method'];
             $shipping->status = $dataUpdate['status'];
-            $shipping->note = $dataUpdate['note'];
             $shipping->save();
             return (new ShippingResource($shipping))
                 ->response()

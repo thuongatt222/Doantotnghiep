@@ -26,7 +26,6 @@ class UpdateCategoryRequest extends FormRequest
     {
         return [
             'category_name' => 'required',
-            'note' => 'nullable|string',
             'status' => 'required',
         ];
     }

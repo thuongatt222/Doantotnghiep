@@ -32,7 +32,6 @@ class StoreProductRequest extends FormRequest
             'discount' => 'nullable|float',
             'brand_id' => 'required',
             'category_id' => 'required',
-            'note' => 'nullable|string',
             'status' => 'required',
         ];
     }

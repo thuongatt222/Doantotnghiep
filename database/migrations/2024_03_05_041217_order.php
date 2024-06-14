@@ -17,19 +17,17 @@ return new class extends Migration
             $table->string('phone_number');
             $table->string('status');
             $table->double('total');
-            $table->string('payment_status');
             $table->unsignedBigInteger('payment_method_id');
             $table->foreign('payment_method_id')->references('payment_method_id')->on('payment_method');
             $table->unsignedBigInteger('shipping_method_id');
             $table->foreign('shipping_method_id')->references('shipping_method_id')->on('shipping_method');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('user_id')->on('users');
-            $table->unsignedBigInteger('employee_id');
+            $table->unsignedBigInteger('employee_id')->nullable();
             $table->foreign('employee_id')->references('user_id')->on('users');
             $table->unsignedBigInteger('voucher_id')->nullable();
             $table->foreign('voucher_id')->references('voucher_id')->on('voucher');
             $table->timestamps();
-            $table->text('note')->nullable();
         });
     }
 

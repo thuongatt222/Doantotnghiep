@@ -29,7 +29,6 @@ class UpdateVoucherRequest extends FormRequest
             'quantity' => 'required',
             'start_day' => 'required',
             'status' => 'required',
-            'note' => 'nullable|string',
             'end_day' => 'required',
         ];
     }

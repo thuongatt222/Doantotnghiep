@@ -33,7 +33,6 @@ class StoreOrderRequest extends FormRequest
             'shipping_method_id' => 'required',
             'payment_status' => 'required',
             'user_id' => 'required',
-            'note' => 'nullable|string',
             'employee_id' => 'required',
         ];
     }

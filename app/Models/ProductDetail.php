@@ -14,7 +14,6 @@ class ProductDetail extends Model
         'product_id',
         'quantity',
         'status',
-        'note'
     ];
     protected $primaryKey = 'product_detail_id';
     protected $table = 'product_detail';

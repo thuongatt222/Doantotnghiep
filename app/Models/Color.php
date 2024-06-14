@@ -11,7 +11,6 @@ class Color extends Model
     protected $fillable = [
         'color',
         'status',
-        'note',
     ];
     protected $table = 'color';
     protected $primaryKey = 'color_id';

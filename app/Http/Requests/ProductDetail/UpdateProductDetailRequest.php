@@ -29,7 +29,6 @@ class UpdateProductDetailRequest extends FormRequest
             'quantity' =>'required|integer',
             'size_id' => 'required',
             'product_id' => 'required',
-            'note' => 'nullable|string',
             'status' => 'required',
         ];
     }

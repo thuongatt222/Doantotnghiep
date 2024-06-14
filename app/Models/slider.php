@@ -13,7 +13,6 @@ class Slider extends Model
         'title',
         'image',
         'status',
-        'note',
     ];
     protected $primaryKey = 'slide_id';
 }
