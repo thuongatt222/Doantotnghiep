@@ -31,9 +31,7 @@ class StoreOrderRequest extends FormRequest
             'total' => 'required',
             'payment_method_id' => 'required',
             'shipping_method_id' => 'required',
-            'payment_status' => 'required',
             'user_id' => 'required',
-            'employee_id' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

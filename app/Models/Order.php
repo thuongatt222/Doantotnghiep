@@ -15,7 +15,6 @@ class Order extends Model
         'total',
         'payment_method_id',
         'shipping_method_id',
-        'payment_status',
         'user_id',
         'voucher_id',
         'employee_id',
