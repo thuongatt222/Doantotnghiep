@@ -24,4 +24,23 @@ class Product extends Model
     {
         return $this->hasMany(ProductDetail::class, 'product_id', 'product_id');
     }
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function color()
+    {
+        return $this->belongsTo(Color::class);
+    }
+
+    public function size()
+    {
+        return $this->belongsTo(Size::class);
+    }
 }

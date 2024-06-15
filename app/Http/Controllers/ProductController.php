@@ -26,9 +26,15 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::withCount('productDetails')->get();
+        $products = Product::with([
+            'brand',
+            'category',
+            'color',
+            'size'
+        ])->withCount('productDetails')->get();
         return new ProductCollection($products);
     }
+
 
     /**
      * Store a newly created resource in storage.
