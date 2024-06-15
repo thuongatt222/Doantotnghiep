@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreign('payment_method_id')->references('payment_method_id')->on('payment_method');
             $table->unsignedBigInteger('shipping_method_id');
             $table->foreign('shipping_method_id')->references('shipping_method_id')->on('shipping_method');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('user_id')->on('users');
             $table->unsignedBigInteger('employee_id')->nullable();
             $table->foreign('employee_id')->references('user_id')->on('users');

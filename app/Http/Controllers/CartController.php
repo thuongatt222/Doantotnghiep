@@ -71,9 +71,13 @@ class CartController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Cart $cart)
+    public function destroy(Request $request)
     {
-        //
+        try{
+            
+        }catch(ModelNotFoundException $e){
+
+        }
     }
     public function cart(Request $request)
     {
