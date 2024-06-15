@@ -45,7 +45,6 @@ class ProductController extends Controller
         $product = new Product();
         $product->product_name = $dataCreate['product_name'];
         $product->status = $dataCreate['status'];
-        $product->note = $dataCreate['note'];
         $product->description = $dataCreate['description'];
         $product->price = $dataCreate['price'];
         $product->discount = $dataCreate['discount'];
@@ -114,7 +113,6 @@ class ProductController extends Controller
             // Update product attributes
             $product->product_name = $dataUpdate['product_name'];
             $product->status = $dataUpdate['status'];
-            $product->note = $dataUpdate['note'];
             $product->description = $dataUpdate['description'];
             $product->price = $dataUpdate['price'];
             $product->discount = $dataUpdate['discount'];
