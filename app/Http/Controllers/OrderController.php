@@ -66,12 +66,14 @@ class OrderController extends Controller
             'shipping_method_id',
             'voucher_id',
         ]);
-
-        $orderData['user_id'] = $userId;
+        if($user->role == 1){
+            $orderData['employee_id'] = $userId;
+        }else{
+            $orderData['user_id'] = $userId;
+        }
         $orderData['total'] = $totalPrice;
         $orderData['status'] = $orderData['status'] ?? 0; // Set default status to 0 if not provided
         $orderData['voucher_id'] = $orderData['voucher_id'] ?? null;
-        $orderData['employee_id'] = null;
 
         $order = Order::create($orderData);
 

@@ -29,8 +29,8 @@ class ProductController extends Controller
         $products = Product::with([
             'brand',
             'category',
-            'color',
-            'size'
+            'productDetails.color',
+            'productDetails.size',
         ])->withCount('productDetails')->get();
         return new ProductCollection($products);
     }

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->integer('status');
             $table->string('color')->unique();
             $table->timestamps();
-            $table->text('note')->nullable();
         });
     }
 

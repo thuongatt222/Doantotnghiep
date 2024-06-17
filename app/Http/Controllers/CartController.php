@@ -23,7 +23,12 @@ class CartController extends Controller
      */
     public function index()
     {
-        $cart = Cart::all();
+        $cart = CartDetail::with(
+            'productDetail',
+            'productDetail.product',
+            'productDetail.color',
+            'productDetail.size',
+        )->get();
         return (new CartCollection($cart))
             ->response()
             ->setStatusCode(HttpResponse::HTTP_OK);
@@ -73,10 +78,14 @@ class CartController extends Controller
      */
     public function destroy(Request $request)
     {
-        try{
-            
-        }catch(ModelNotFoundException $e){
-
+        try {
+            $productDetailId = $request->input('product_detail_id');
+            $productDetail = CartDetail::findOrFail($productDetailId);
+            $productDetail->delete();
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Product detail not found.',
+            ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
     public function cart(Request $request)
@@ -102,7 +111,7 @@ class CartController extends Controller
             'cart_id' => $cart->cart_id,
             'product_detail_id' => $productDetailId,
         ]);
-        
+
         // Update the quantity
         $cartDetail->quantity += $quantity;
         $cartDetail->save();
@@ -113,8 +122,6 @@ class CartController extends Controller
         $cartData = $cartDetails->map(function ($detail) {
             return [
                 'product_detail_id' => $detail->product_detail_id,
-                'name' => $detail->productDetail->name,
-                'price' => $detail->productDetail->price,
                 'quantity' => $detail->quantity,
             ];
         });
