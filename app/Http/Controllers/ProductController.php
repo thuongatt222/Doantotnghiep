@@ -73,26 +73,25 @@ class ProductController extends Controller
      * Display the specified resource.
      */
     public function show(string $id)
-    {
-        try {
-            $product = Product::where('products.id', $id)
-                ->join('brands', 'products.brand_id', '=', 'brands.id')
-                ->join('categories', 'products.category_id', '=', 'categories.id')
-                ->leftJoin('product_details', 'products.id', '=', 'product_details.product_id')
-                ->leftJoin('colors', 'product_details.color_id', '=', 'colors.id')
-                ->leftJoin('sizes', 'product_details.size_id', '=', 'sizes.id')
-                ->select('products.*', 'brands.name as brand_name', 'categories.name as category_name', 'colors.name as color_name', 'sizes.name as size_name')
-                ->firstOrFail();
+{
+    try {
+        $products = Product::with([
+            'brand',
+            'category',
+            'productDetails.color',
+            'productDetails.size',
+        ])->withCount('productDetails')->where('product_id', $id)->get();
 
-            return (new ProductResource($product))
-                ->response()
-                ->setStatusCode(HttpResponse::HTTP_OK);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'error' => 'Product id là ' . $id . ' không tồn tại',
-            ], HttpResponse::HTTP_NOT_FOUND);
-        }
+        return (new ProductResource($products))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
+    } catch (ModelNotFoundException $e) {
+        return response()->json([
+            'error' => 'Product id là ' . $id . ' không tồn tại',
+        ], HttpResponse::HTTP_NOT_FOUND);
     }
+}
+
 
 
     /**
