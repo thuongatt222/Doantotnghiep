@@ -73,24 +73,25 @@ class ProductController extends Controller
      * Display the specified resource.
      */
     public function show(string $id)
-{
-    try {
-        $products = Product::with([
-            'brand',
-            'category',
-            'productDetails.color',
-            'productDetails.size',
-        ])->withCount('productDetails')->where('product_id', $id)->get();
+    {
+        try {
+            $product = Product::with([
+                'brand',
+                'category',
+                'productDetails.color',
+                'productDetails.size',
+            ])->withCount('productDetails')->findOrFail($id);
 
-        return (new ProductResource($products))
-            ->response()
-            ->setStatusCode(HttpResponse::HTTP_OK);
-    } catch (ModelNotFoundException $e) {
-        return response()->json([
-            'error' => 'Product id là ' . $id . ' không tồn tại',
-        ], HttpResponse::HTTP_NOT_FOUND);
+            return (new ProductResource($product))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'error' => 'Product id là ' . $id . ' không tồn tại',
+            ], HttpResponse::HTTP_NOT_FOUND);
+        }
     }
-}
+
 
 
 

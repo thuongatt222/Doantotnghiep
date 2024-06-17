@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductDetail\StoreProductDetailRequest;
 use App\Http\Requests\ProductDetail\UpdateProductDetailRequest;
+use App\Http\Resources\ProductDetail\ProductDetailCollection;
 use App\Http\Resources\ProductDetail\ProductDetailResource;
 use App\Models\Color;
 use App\Models\Product;
@@ -26,13 +27,14 @@ class ProductDetailController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
+{
+    $product_details = ProductDetail::with(['color', 'size'])->get();
+    return (new ProductDetailCollection($product_details))
+        ->response()
+        ->setStatusCode(HttpResponse::HTTP_OK);
+}
 
-        $product_detailsResource = ProductDetail::all();
-        return (new ProductDetailResource($product_detailsResource))
-            ->response()
-            ->setStatusCode(HttpResponse::HTTP_OK);
-    }
+
 
     /**
      * Store a newly created resource in storage.

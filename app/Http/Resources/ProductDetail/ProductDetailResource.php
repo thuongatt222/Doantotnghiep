@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\ProductDetail;
 
+use App\Http\Resources\Color\ColorResource;
+use App\Http\Resources\Size\SizeResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -14,6 +16,12 @@ class ProductDetailResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'product_detail_id' => $this->product_detail_id,
+            'product_id' => $this->product_id,
+            'color' => new ColorResource($this->whenLoaded('color')),
+            'size' => new SizeResource($this->whenLoaded('size')),
+            'quantity' => $this->quantity,
+        ];
     }
 }
