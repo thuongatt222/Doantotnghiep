@@ -75,7 +75,15 @@ class ProductController extends Controller
     public function show(string $id)
     {
         try {
-            $product = $this->product->findOrFail($id);
+            $product = Product::where('products.id', $id)
+                ->join('brands', 'products.brand_id', '=', 'brands.id')
+                ->join('categories', 'products.category_id', '=', 'categories.id')
+                ->leftJoin('product_details', 'products.id', '=', 'product_details.product_id')
+                ->leftJoin('colors', 'product_details.color_id', '=', 'colors.id')
+                ->leftJoin('sizes', 'product_details.size_id', '=', 'sizes.id')
+                ->select('products.*', 'brands.name as brand_name', 'categories.name as category_name', 'colors.name as color_name', 'sizes.name as size_name')
+                ->firstOrFail();
+
             return (new ProductResource($product))
                 ->response()
                 ->setStatusCode(HttpResponse::HTTP_OK);
@@ -85,6 +93,7 @@ class ProductController extends Controller
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
+
 
     /**
      * Update the specified resource in storage.
