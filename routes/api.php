@@ -46,7 +46,6 @@ Route::group(['middleware' => 'cors'], function () {
     // });
     Route::apiResource('size', SizeController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('user', UserController::class)->only('index', 'store', 'update', 'destroy', 'show');
-    Route::apiResource('cart', CartController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('brand', BrandController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('product', ProductController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('category', CategoryController::class)->only('index', 'store', 'update', 'destroy', 'show');
@@ -55,7 +54,6 @@ Route::group(['middleware' => 'cors'], function () {
     Route::apiResource('shipping', ShippingController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('productdetail', ProductDetailController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('orderdetail', OrderDetailController::class)->only('index', 'store', 'update', 'destroy', 'show');
-    Route::apiResource('order', OrderController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('voucher', VoucherController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('favourite', FavouriteController::class)->only('index', 'store', 'destroy');
     Route::apiResource('library', PictureLibraryController::class)->only('index', 'store', 'destroy', 'show');
@@ -72,9 +70,10 @@ Route::group(['middleware' => 'cors'], function () {
         Route::post('logout', [AccountController::class, 'logout']);
         Route::post('refresh', [AccountController::class, 'refresh']);
         Route::post('me', [AccountController::class, 'me']);
-        
     });
     Route::middleware('auth:api')->group(function () {
+        Route::apiResource('order', OrderController::class)->only('index', 'store', 'update', 'destroy', 'show');
+        Route::apiResource('cart', CartController::class)->only('index', 'store', 'update', 'destroy', 'show');
         Route::post('add-to-cart', [CartController::class, 'cart']);
         Route::post('password/change', [AccountController::class, 'changePassword']);
     });

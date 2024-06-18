@@ -25,14 +25,7 @@ class UpdateOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'address' => 'required',
-            'phone_number' => 'required',
             'status' => 'required',
-            'total' => 'required',
-            'payment_method_id' => 'required',
-            'shipping_method_id' => 'required',
-            'user_id' => 'required',
-            'employee_id' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

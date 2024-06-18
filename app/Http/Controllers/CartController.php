@@ -76,16 +76,36 @@ class CartController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request, $id)
     {
         try {
-            $productDetailId = $request->input('product_detail_id');
-            $productDetail = CartDetail::findOrFail($productDetailId);
+            $user = Auth::user();
+
+            if (!$user) {
+                return response()->json([
+                    'error' => 'User not authenticated.',
+                ], HttpResponse::HTTP_UNAUTHORIZED);
+            }
+
+            $userId = $user->user_id;
+            $cart = Cart::where('user_id', $userId)->firstOrFail();
+            $productDetail = CartDetail::where('cart_id', $cart->cart_id)
+                ->where('product_detail_id', $id)
+                ->firstOrFail();
             $productDetail->delete();
+
+            return response()->json([
+                'message' => 'Product detail deleted successfully.',
+            ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'error' => 'Product detail not found.',
             ], HttpResponse::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'An unexpected error occurred.',
+                'message' => $e->getMessage(),
+            ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
     public function cart(Request $request)

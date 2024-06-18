@@ -27,11 +27,8 @@ class StoreOrderRequest extends FormRequest
         return [
             'address' => 'required',
             'phone_number' => 'required',
-            'status' => 'required',
-            'total' => 'required',
             'payment_method_id' => 'required',
             'shipping_method_id' => 'required',
-            'user_id' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

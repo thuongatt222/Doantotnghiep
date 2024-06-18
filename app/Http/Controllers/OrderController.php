@@ -61,29 +61,31 @@ class OrderController extends Controller
         $orderData = $request->only([
             'address',
             'phone_number',
-            'status',
             'payment_method_id',
             'shipping_method_id',
             'voucher_id',
         ]);
-        if($user->role == 1){
+        if ($user->role == 1) {
             $orderData['employee_id'] = $userId;
-        }else{
+        } else {
             $orderData['user_id'] = $userId;
         }
         $orderData['total'] = $totalPrice;
-        $orderData['status'] = $orderData['status'] ?? 0; // Set default status to 0 if not provided
+        $orderData['status'] = 0; // Set default status to 0 if not provided
         $orderData['voucher_id'] = $orderData['voucher_id'] ?? null;
 
         $order = Order::create($orderData);
 
         // Create order details
         foreach ($cartDetails as $detail) {
+            $productDetail = $detail->productDetail; // Eager load product detail to avoid N+1 problem
+            $product = $productDetail->product;
+
             OrderDetail::create([
                 'order_id' => $order->order_id,
                 'product_detail_id' => $detail->product_detail_id,
                 'quantity' => $detail->quantity,
-                'price' => $detail->productDetail->product->price,
+                'price' => $product->price,
             ]);
         }
 
@@ -94,7 +96,6 @@ class OrderController extends Controller
         $orderResource = new OrderResource($order);
         return response()->json(['data' => $orderResource], HttpResponse::HTTP_OK);
     }
-
     /**
      * Display the specified resource.
      */
