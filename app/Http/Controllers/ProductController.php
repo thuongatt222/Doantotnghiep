@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class ProductController extends Controller
 {
@@ -98,11 +98,9 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateProductRequest $request, string $id)
     {
         $dataUpdate = $request->all();
-
-        dd($dataUpdate);
         try {
             $product = Product::findOrFail($id);
         } catch (ModelNotFoundException $e) {
