@@ -24,13 +24,14 @@ class CartController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $cart = Cart::where('user_id', $user->id)->first();
+        $cart1 = Cart::where('user_id', $user->user_id)->first();
+
         $cart = CartDetail::with(
             'productDetail',
             'productDetail.product',
             'productDetail.color',
             'productDetail.size',
-        )->where('cart_id', $cart->cart_id)->get();
+        )->where('cart_id', $cart1->cart_id)->get();
         return (new CartCollection($cart))
             ->response()
             ->setStatusCode(HttpResponse::HTTP_OK);
