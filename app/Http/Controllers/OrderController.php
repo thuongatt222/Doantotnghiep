@@ -60,6 +60,7 @@ class OrderController extends Controller
         // Create the order
         $orderData = $request->only([
             'address',
+            'name',
             'phone_number',
             'payment_method_id',
             'shipping_method_id',
