@@ -132,7 +132,7 @@ class SliderController extends Controller
             ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'message' => 'Không tồn tại ' . $slider->title,
+                'message' => 'Không tồn tại slider id' . $id,
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }

@@ -111,7 +111,7 @@ class PictureLibraryController extends Controller
             ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Hình ảnh ' . $picture->image . ' không tồn tại',
+                'error' => 'Hình ảnh không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }

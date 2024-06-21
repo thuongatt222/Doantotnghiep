@@ -15,13 +15,16 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        \App\Models\User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => Hash::make(123456),
-            'role' =>1,
-            'avatar' =>'avatar.jpg',
-            'status' => 1,
+        // \App\Models\User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        //     'password' => Hash::make(123456),
+        //     'role' =>1,
+        //     'avatar' =>'avatar.jpg',
+        //     'status' => 1,
+        // ]);
+        $this->call([
+            PaymentMethodSeeder::class,
         ]);
     }
 }

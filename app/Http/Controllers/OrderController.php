@@ -10,6 +10,8 @@ use App\Models\Cart;
 use App\Models\CartDetail;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Payment;
+use App\Models\Voucher;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -64,16 +66,21 @@ class OrderController extends Controller
             'phone_number',
             'payment_method_id',
             'shipping_method_id',
-            'voucher_id',
+            'voucher_code',
         ]);
         if ($user->role == 1) {
             $orderData['employee_id'] = $userId;
         } else {
             $orderData['user_id'] = $userId;
         }
+        if ($orderData['voucher_code']) {
+            $voucher = Voucher::where('voucher_code', $orderData['voucher_code'])->first();
+            $orderData['total'] = $totalPrice * $voucher->voucher;
+            $orderData['voucher_id'] = $voucher->voucher_id;
+        }
         $orderData['total'] = $totalPrice;
+        $orderData['voucher_id'] = null;
         $orderData['status'] = 0; // Set default status to 0 if not provided
-        $orderData['voucher_id'] = $orderData['voucher_id'] ?? null;
 
         $order = Order::create($orderData);
 
@@ -92,7 +99,45 @@ class OrderController extends Controller
 
         // Clear the cart
         CartDetail::where('cart_id', $cart->cart_id)->delete();
+        $payment = Payment::where('payment_method_id', $order->payment_method_id)->first();
+        if ($payment->payment_method == 'Momo') {
+            $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
+            $partnerCode = 'MOMOBKUN20180529';
+            $accessKey = 'klm05TvNBzhg7h7j';
+            $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
+            $orderInfo = "Thanh toán qua MoMo";
+            $amount = $order->total;
+            $orderId = $order->order_id;
+            $redirectUrl = "";
+            $ipnUrl = "";
+            $extraData = "";
+            $requestId = time() . "";
+            $requestType = "payWithATM";
+            $extraData = "";
+            //before sign HMAC SHA256 signature
+            $rawHash = "accessKey=" . $accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&ipnUrl=" . $ipnUrl . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo . "&partnerCode=" . $partnerCode . "&redirectUrl=" . $redirectUrl . "&requestId=" . $requestId . "&requestType=" . $requestType;
+            $signature = hash_hmac("sha256", $rawHash, $secretKey);
+            $data = array(
+                'partnerCode' => $partnerCode,
+                'partnerName' => "Test",
+                "storeId" => "MomoTestStore",
+                'requestId' => $requestId,
+                'amount' => $amount,
+                'orderId' => $orderId,
+                'orderInfo' => $orderInfo,
+                'redirectUrl' => $redirectUrl,
+                'ipnUrl' => $ipnUrl,
+                'lang' => 'vi',
+                'extraData' => $extraData,
+                'requestType' => $requestType,
+                'signature' => $signature
+            );
+            $result = $this->execPostRequest($endpoint, json_encode($data));
+            $jsonResult = json_decode($result, true);  // decode json
 
+            //Just a example, please check more in there
+            return redirect()->to($jsonResult['payUrl']);
+        }
         // Return the order resource
         $orderResource = new OrderResource($order);
         return response()->json(['data' => $orderResource], HttpResponse::HTTP_OK);
@@ -187,5 +232,27 @@ class OrderController extends Controller
 
     public function confOrder()
     {
+    }
+    public function execPostRequest($url, $data)
+    {
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt(
+            $ch,
+            CURLOPT_HTTPHEADER,
+            array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data)
+            )
+        );
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        //execute post
+        $result = curl_exec($ch);
+        //close connection
+        curl_close($ch);
+        return $result;
     }
 }

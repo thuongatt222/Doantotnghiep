@@ -42,6 +42,7 @@ class VoucherController extends Controller
         }
         $voucher = new Voucher();
         $voucher->voucher = $dataCreate['voucher'];
+        $voucher->voucher_code = $dataCreate['voucher_code'];
         $voucher->quantity = $dataCreate['quantity'];
         $voucher->start_day = $dataCreate['start_day'];
         $voucher->end_day = $dataCreate['end_day'];
@@ -77,13 +78,14 @@ class VoucherController extends Controller
         try {
             $voucher = $this->voucher->findOrFail($id);
             $dataUpdate = $request->all();
-            $check = Voucher::where('voucher', $dataUpdate['voucher'])->where('voucher_id', '!=', $id)->exists();
+            $check = Voucher::where('voucher_code', $dataUpdate['voucher_code'])->where('voucher_id', '!=', $id)->exists();
             if ($check) {
                 return response()->json([
                     'error' => 'Voucher này đã tồn tại!',
                 ], HttpResponse::HTTP_CONFLICT);
             }
             $voucher->voucher = $dataUpdate['voucher'];
+            $voucher->voucher_code = $dataUpdate['voucher_code'];
             $voucher->quantity = $dataUpdate['quantity'];
             $voucher->start_day = $dataUpdate['start_day'];
             $voucher->end_day = $dataUpdate['end_day'];
@@ -94,7 +96,7 @@ class VoucherController extends Controller
                 ->setStatusCode(HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Voucher' . $voucher->voucher . ' không tồn tại',
+                'error' => 'Voucher không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
@@ -118,7 +120,7 @@ class VoucherController extends Controller
             ], HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Voucher' . $voucher->voucher . ' không tồn tại',
+                'error' => 'Voucher không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
