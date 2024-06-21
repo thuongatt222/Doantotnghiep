@@ -108,8 +108,8 @@ class OrderController extends Controller
             $orderInfo = "Thanh toán qua MoMo";
             $amount = $order->total;
             $orderId = $order->order_id;
-            $redirectUrl = "";
-            $ipnUrl = "";
+            $redirectUrl = env('URL_CUSTOMER')."order";
+            $ipnUrl = env('URL_CUSTOMER')."order";
             $extraData = "";
             $requestId = time() . "";
             $requestType = "payWithATM";
