@@ -72,6 +72,7 @@ class OrderController extends Controller
             'payment_method_id',
             'shipping_method_id',
             'voucher_code',
+            'shipping_code',
         ]);
         if ($user->role == 1) {
             $orderData['employee_id'] = $userId;
@@ -85,6 +86,7 @@ class OrderController extends Controller
         }
         $orderData['total'] = $totalPrice;
         $orderData['voucher_id'] = null;
+        $orderData['shipping_code'] = $request['shipping_code'] ?? null;
         $orderData['status'] = 0; // Set default status to 0 if not provided
 
         $order = Order::create($orderData);
@@ -178,6 +180,7 @@ class OrderController extends Controller
 
             // Ensure only the status field is updated and set employee_id
             $dataUpdate = [
+                'shipping_code' => $request->input('shipping_code'),
                 'status' => $request->input('status'),
                 'employee_id' => $user->user_id,
             ];
