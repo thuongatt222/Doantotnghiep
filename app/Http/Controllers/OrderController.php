@@ -29,10 +29,15 @@ class OrderController extends Controller
      */
     public function index()
     {
-
-        $orderResource = Order::all();
-        return new OrderCollection($orderResource);
+        $orders = Order::with([
+            'orderDetails.productDetail.color',
+            'orderDetails.productDetail.size'
+        ])->get();
+        return (new OrderCollection($orders))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -108,8 +113,8 @@ class OrderController extends Controller
             $orderInfo = "Thanh toán qua MoMo";
             $amount = $order->total;
             $orderId = $order->order_id;
-            $redirectUrl = env('URL_CUSTOMER')."order";
-            $ipnUrl = env('URL_CUSTOMER')."order";
+            $redirectUrl = env('URL_CUSTOMER') . "order";
+            $ipnUrl = env('URL_CUSTOMER') . "order";
             $extraData = "";
             $requestId = time() . "";
             $requestType = "payWithATM";

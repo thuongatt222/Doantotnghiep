@@ -32,7 +32,9 @@ class ProductController extends Controller
             'productDetails.color',
             'productDetails.size',
         ])->withCount('productDetails')->get();
-        return new ProductCollection($products);
+        return (new ProductCollection($products))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
     }
 
 
