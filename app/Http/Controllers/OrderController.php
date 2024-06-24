@@ -31,11 +31,38 @@ class OrderController extends Controller
     {
         $orders = Order::with([
             'orderDetails.productDetail.color',
-            'orderDetails.productDetail.size'
+            'orderDetails.productDetail.size',
+            'orderDetails.productDetail.product',
+            'shipping',
+            'payment'
         ])->get();
         return (new OrderCollection($orders))
             ->response()
             ->setStatusCode(HttpResponse::HTTP_OK);
+    }
+    public function display_user()
+    {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['error' => 'User not authenticated'], HttpResponse::HTTP_UNAUTHORIZED);
+            }
+            $orders = Order::with([
+                'orderDetails.productDetail.color',
+                'orderDetails.productDetail.size',
+                'orderDetails.productDetail.product',
+                'shipping',
+                'payment'
+            ])->where('user_id', $user->user_id)->get();
+
+            return (new OrderCollection($orders))
+                ->response()
+                ->setStatusCode(HttpResponse::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
 
@@ -76,6 +103,7 @@ class OrderController extends Controller
         ]);
         if ($user->role == 1) {
             $orderData['employee_id'] = $userId;
+            $orderData['user_id'] = $userId;
         } else {
             $orderData['user_id'] = $userId;
         }
@@ -156,18 +184,23 @@ class OrderController extends Controller
     {
         try {
             $order = Order::with([
-            'orderDetails.productDetail.color',
-            'orderDetails.productDetail.size'
-        ])->findOrFail($id);
+                'orderDetails.productDetail.color',
+                'orderDetails.productDetail.size',
+                'orderDetails.productDetail.product',
+                'shipping',
+                'payment'
+            ])->findOrFail($id);
+
             return (new OrderResource($order))
                 ->response()
                 ->setStatusCode(HttpResponse::HTTP_OK);
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                'error' => 'Order id là ' . $id . ' không tồn tại',
+                'error' => 'Order id ' . $id . ' không tồn tại',
             ], HttpResponse::HTTP_NOT_FOUND);
         }
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -230,19 +263,6 @@ class OrderController extends Controller
                 'error' => 'Đã xảy ra lỗi không mong muốn',
             ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
-    }
-
-
-    public function profit()
-    {
-        $profit = Order::join('orderdetails', 'orders.id', '=', 'orderdetails.order_id')
-            ->join('products', 'orderdetails.product_id', '=', 'products.id')
-            ->select('orders.total', 'orders.created_at', 'products.name')
-            ->get();
-    }
-
-    public function confOrder()
-    {
     }
     public function execPostRequest($url, $data)
     {

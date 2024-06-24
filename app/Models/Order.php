@@ -26,4 +26,10 @@ class Order extends Model
     {
         return $this->hasMany(OrderDetail::class, 'order_id', 'order_id');
     }
+    public function shipping(){
+        return $this->belongsTo(Shipping::class, 'shipping_method_id', 'shipping_method_id');
+    }
+    public function payment(){
+        return $this->belongsTo(Payment::class, 'payment_method_id', 'payment_method_id');
+    }
 }

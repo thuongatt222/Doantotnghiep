@@ -72,6 +72,7 @@ Route::group(['middleware' => 'cors'], function () {
     });
     Route::middleware('auth:api')->group(function () {
         Route::apiResource('order', OrderController::class)->only('index', 'store', 'update', 'destroy', 'show');
+        Route::post('order/display-by-user', [OrderController::class, 'display_user']);
         Route::apiResource('cart', CartController::class)->only('index', 'store', 'update', 'destroy', 'show');
         Route::post('add-to-cart', [CartController::class, 'cart']);
         Route::post('password/change', [AccountController::class, 'changePassword']);
