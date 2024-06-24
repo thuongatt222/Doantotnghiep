@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\OrderDetail;
 use App\Models\ProductDetail;
 use App\Models\size;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
@@ -27,12 +28,12 @@ class ProductDetailController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-{
-    $product_details = ProductDetail::with(['color', 'size'])->get();
-    return (new ProductDetailCollection($product_details))
-        ->response()
-        ->setStatusCode(HttpResponse::HTTP_OK);
-}
+    {
+        $product_details = ProductDetail::with(['color', 'size'])->get();
+        return (new ProductDetailCollection($product_details))
+            ->response()
+            ->setStatusCode(HttpResponse::HTTP_OK);
+    }
 
 
 
@@ -121,6 +122,32 @@ class ProductDetailController extends Controller
         }
     }
 
+    public function topSellingProducts()
+    {
+        $now = Carbon::now();
+        $month = $now->month;
+        $year = $now->year;
+
+        $topProducts = ProductDetail::selectRaw('
+            product_detail.product_detail_id,
+            product.product_name,
+            product.image,
+            SUM(order_detail.quantity) as total_sold_quantity
+        ')
+        ->join('order_detail', 'product_detail.product_detail_id', '=', 'order_detail.product_detail_id')
+        ->join('order', 'order_detail.order_id', '=', 'order.order_id')
+        ->join('product', 'product_detail.product_id', '=', 'product.product_id')
+        ->whereRaw('EXTRACT(MONTH FROM "order".created_at) = ?', [$month])
+        ->whereYear('order.created_at', $year)
+        ->groupBy('product_detail.product_detail_id', 'product.product_name', 'product.image')
+        ->orderByDesc('total_sold_quantity')
+        ->limit(10)
+        ->get();
+
+        return response()->json([
+            'data' => $topProducts,
+        ], HttpResponse::HTTP_OK);
+    }
 
 
     /**

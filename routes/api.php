@@ -57,6 +57,9 @@ Route::group(['middleware' => 'cors'], function () {
     Route::apiResource('favourite', FavouriteController::class)->only('index', 'store', 'destroy');
     Route::apiResource('library', PictureLibraryController::class)->only('index', 'store', 'destroy', 'show');
     Route::get('verify/{id}', [AccountController::class, 'verifyEmail'])->name('account.verify');
+    
+    Route::get('get-profit', [OrderController::class, 'getMonthlyProfit']);
+    Route::get('best-selling', [ProductDetailController::class, 'topSellingProducts']);
     Route::group([
 
         'middleware' => 'api',

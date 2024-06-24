@@ -6,16 +6,18 @@ use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Http\Resources\Order\OrderCollection;
 use App\Http\Resources\Order\OrderResource;
-use App\Models\Cart;
+use App\Models\Cart;use App\Models\Product;
 use App\Models\CartDetail;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Payment;
 use App\Models\Voucher;
+use Carbon\Carbon;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -264,6 +266,28 @@ class OrderController extends Controller
             ], HttpResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    public function getMonthlyProfit()
+    {
+        $profits = Order::select(
+            DB::raw('SUM(total) as profit'),
+            DB::raw('DATE_TRUNC(\'month\', created_at) as month')
+        )
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        $chartData = $profits->map(function ($profit) {
+            // Convert 'month' to a Carbon instance
+            $month = Carbon::parse($profit->month);
+            return [
+                'month' => $month->format('Y-m'),
+                'profit' => $profit->profit,
+            ];
+        });
+
+        return response()->json($chartData, HttpResponse::HTTP_OK);
+    }
+    
     public function execPostRequest($url, $data)
     {
         $ch = curl_init($url);
