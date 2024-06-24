@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
             ShippingMethodSeeder::class,
             ColorSeeder::class,
             SizeSeeder::class,
+            BrandSeeder::class,
+            CategorySeeder::class,
         ]);
     }
 }
