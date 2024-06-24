@@ -19,6 +19,7 @@ class OrderCollection extends ResourceCollection
             'data' => $this->collection->transform(function($order) {
                 return [
                     'order_id' => $order->order_id,
+                    'name' => $order->name,
                     'address' => $order->address,
                     'phone_number' => $order->phone_number,
                     'status' => $order->status,
