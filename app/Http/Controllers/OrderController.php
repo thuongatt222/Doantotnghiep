@@ -155,7 +155,10 @@ class OrderController extends Controller
     public function show(string $id)
     {
         try {
-            $order = $this->order->findOrFail($id);
+            $order = Order::with([
+            'orderDetails.productDetail.color',
+            'orderDetails.productDetail.size'
+        ])->findOrFail($id);
             return (new OrderResource($order))
                 ->response()
                 ->setStatusCode(HttpResponse::HTTP_OK);
