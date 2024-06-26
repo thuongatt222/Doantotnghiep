@@ -128,7 +128,7 @@ class CartController extends Controller
         $quantity = $request->input('quantity') ?? 1;
         $user = Auth::user();
         $userId = $user->user_id;
-
+        $cartData = [];
         // Find or create a cart for the user
         $cart = Cart::firstOrCreate(['user_id' => $userId]);
 
