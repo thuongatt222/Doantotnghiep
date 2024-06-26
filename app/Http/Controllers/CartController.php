@@ -124,41 +124,44 @@ class CartController extends Controller
     }
     public function cart(Request $request)
     {
-        $productDetailId = $request->input('product_detail_id');
-        $quantity = $request->input('quantity') ?? 1;
+        $productDetails = $request->input();
+
         $user = Auth::user();
         $userId = $user->user_id;
-        $cartData = [];
+
         // Find or create a cart for the user
         $cart = Cart::firstOrCreate(['user_id' => $userId]);
 
-        try {
-            // Find the product detail
-            $productDetail = ProductDetail::findOrFail($productDetailId);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'error' => 'Product detail not found.',
-            ], HttpResponse::HTTP_NOT_FOUND);
-        }
-        // Find or create cart detail
-        $cartDetail = CartDetail::firstOrNew([
-            'cart_id' => $cart->cart_id,
-            'product_detail_id' => $productDetailId,
-        ]);
+        $cartData = [];
 
-        // Update the quantity
-        $cartDetail->quantity += $quantity;
-        $cartDetail->save();
-        // Retrieve updated cart details
-        $cartDetails = CartDetail::where('cart_id', $cart->cart_id)->get();
+        foreach ($productDetails as $detail) {
+            $productDetailId = $detail['product_detail_id'];
+            $quantity = $detail['quantity'] ?? 1;
 
-        // Prepare cart data to return
-        $cartData = $cartDetails->map(function ($detail) {
-            return [
-                'product_detail_id' => $detail->product_detail_id,
-                'quantity' => $detail->quantity,
+            try {
+                // Find the product detail
+                $productDetail = ProductDetail::findOrFail($productDetailId);
+            } catch (ModelNotFoundException $e) {
+                return response()->json([
+                    'error' => "Product detail with ID $productDetailId not found.",
+                ], HttpResponse::HTTP_NOT_FOUND);
+            }
+
+            // Find or create cart detail
+            $cartDetail = CartDetail::firstOrNew([
+                'cart_id' => $cart->cart_id,
+                'product_detail_id' => $productDetailId,
+            ]);
+
+            // Update the quantity
+            $cartDetail->quantity = $quantity;
+            $cartDetail->save();
+
+            $cartData[] = [
+                'product_detail_id' => $cartDetail->product_detail_id,
+                'quantity' => $cartDetail->quantity,
             ];
-        });
+        }
 
         return response()->json([
             'data' => $cartData,
