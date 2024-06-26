@@ -180,11 +180,11 @@ class OrderController extends Controller
                     return $jsonResult['payUrl'];
                 } else {
                     // Handle the error case
-                    return redirect()->back()->with('error', 'Unable to create MoMo payment. Please try again.');
+                    return response()->json('error', 'Unable to create MoMo payment. Please try again.');
                 }
             } catch (\Exception $e) {
                 // Handle the exception case
-                return redirect()->back()->with('error', 'An error occurred while processing your request. Please try again.');
+                return response()->json('error', 'An error occurred while processing your request. Please try again.');
             }
         }
         // Return the order resource
