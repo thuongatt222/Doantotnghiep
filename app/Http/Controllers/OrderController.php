@@ -6,7 +6,8 @@ use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Http\Resources\Order\OrderCollection;
 use App\Http\Resources\Order\OrderResource;
-use App\Models\Cart;use App\Models\Product;
+use App\Models\Cart;
+use App\Models\Product;
 use App\Models\CartDetail;
 use App\Models\Order;
 use App\Models\OrderDetail;
@@ -117,7 +118,7 @@ class OrderController extends Controller
         $orderData['total'] = $totalPrice;
         $orderData['voucher_id'] = null;
         $orderData['shipping_code'] = $request['shipping_code'] ?? null;
-        $orderData['status'] = 0; // Set default status to 0 if not provided
+        $orderData['status'] = 1;
 
         $order = Order::create($orderData);
 
@@ -139,22 +140,23 @@ class OrderController extends Controller
         $payment = Payment::where('payment_method_id', $order->payment_method_id)->first();
         if ($payment->payment_method == 'Momo') {
             $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
-            $partnerCode = 'MOMOBKUN20180529';
-            $accessKey = 'klm05TvNBzhg7h7j';
-            $secretKey = 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa';
+            $partnerCode = env('MOMO_PARTNER_CODE', 'MOMOBKUN20180529');
+            $accessKey = env('MOMO_ACCESS_KEY', 'klm05TvNBzhg7h7j');
+            $secretKey = env('MOMO_SECRET_KEY', 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa');
             $orderInfo = "Thanh toán qua MoMo";
             $amount = $order->total;
-            $orderId = $order->order_id;
-            $redirectUrl = env('URL_CUSTOMER') . "order";
-            $ipnUrl = env('URL_CUSTOMER') . "order";
-            $extraData = "";
+            $orderId = $order->order_id . '_' . time();
+            $redirectUrl = env('URL_CUSTOMER') . "/order";
+            $ipnUrl = env('URL_CUSTOMER') . "/order";
             $requestId = time() . "";
             $requestType = "payWithATM";
             $extraData = "";
-            //before sign HMAC SHA256 signature
-            $rawHash = "accessKey=" . $accessKey . "&amount=" . $amount . "&extraData=" . $extraData . "&ipnUrl=" . $ipnUrl . "&orderId=" . $orderId . "&orderInfo=" . $orderInfo . "&partnerCode=" . $partnerCode . "&redirectUrl=" . $redirectUrl . "&requestId=" . $requestId . "&requestType=" . $requestType;
+
+            // Before signing HMAC SHA256 signature
+            $rawHash = "accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType";
             $signature = hash_hmac("sha256", $rawHash, $secretKey);
-            $data = array(
+            
+            $data = [
                 'partnerCode' => $partnerCode,
                 'partnerName' => "Test",
                 "storeId" => "MomoTestStore",
@@ -168,12 +170,23 @@ class OrderController extends Controller
                 'extraData' => $extraData,
                 'requestType' => $requestType,
                 'signature' => $signature
-            );
-            $result = $this->execPostRequest($endpoint, json_encode($data));
-            $jsonResult = json_decode($result, true);  // decode json
+            ];
 
-            //Just a example, please check more in there
-            return redirect()->to($jsonResult['payUrl']);
+            try {
+                $result = $this->execPostRequest($endpoint, json_encode($data));
+                dd($result);
+                $jsonResult = json_decode($result, true);
+
+                if (isset($jsonResult['payUrl'])) {
+                    return redirect()->to($jsonResult['payUrl']);
+                } else {
+                    // Handle the error case
+                    return redirect()->back()->with('error', 'Unable to create MoMo payment. Please try again.');
+                }
+            } catch (\Exception $e) {
+                // Handle the exception case
+                return redirect()->back()->with('error', 'An error occurred while processing your request. Please try again.');
+            }
         }
         // Return the order resource
         $orderResource = new OrderResource($order);
@@ -287,7 +300,7 @@ class OrderController extends Controller
 
         return response()->json($chartData, HttpResponse::HTTP_OK);
     }
-    
+
     public function execPostRequest($url, $data)
     {
         $ch = curl_init($url);

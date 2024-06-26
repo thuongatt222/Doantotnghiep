@@ -130,19 +130,33 @@ class ProductDetailController extends Controller
 
         $topProducts = ProductDetail::selectRaw('
             product_detail.product_detail_id,
+            product_detail.product_id,
+            color.color as color_name,
+            sizes.size as size_name,
             product.product_name,
             product.image,
             SUM(order_detail.quantity) as total_sold_quantity
         ')
-        ->join('order_detail', 'product_detail.product_detail_id', '=', 'order_detail.product_detail_id')
-        ->join('order', 'order_detail.order_id', '=', 'order.order_id')
-        ->join('product', 'product_detail.product_id', '=', 'product.product_id')
-        ->whereRaw('EXTRACT(MONTH FROM "order".created_at) = ?', [$month])
-        ->whereYear('order.created_at', $year)
-        ->groupBy('product_detail.product_detail_id', 'product.product_name', 'product.image')
-        ->orderByDesc('total_sold_quantity')
-        ->limit(10)
-        ->get();
+            ->join('order_detail', 'product_detail.product_detail_id', '=', 'order_detail.product_detail_id')
+            ->join('order', 'order_detail.order_id', '=', 'order.order_id')
+            ->join('product', 'product_detail.product_id', '=', 'product.product_id')
+            ->join('color', 'product_detail.color_id', '=', 'color.color_id')
+            ->join('sizes', 'product_detail.size_id', '=', 'sizes.size_id')
+            ->whereMonth('order.created_at', $month)
+            ->whereYear('order.created_at', $year)
+            ->groupBy(
+                'product_detail.product_detail_id',
+                'product_detail.product_id',
+                'color.color',
+                'sizes.size',
+                'product.product_name',
+                'product.image'
+            )
+            ->orderByDesc('total_sold_quantity')
+            ->limit(10)
+            ->get();
+
+
 
         return response()->json([
             'data' => $topProducts,
