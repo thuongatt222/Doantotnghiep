@@ -177,7 +177,7 @@ class OrderController extends Controller
                 $jsonResult = json_decode($result, true);
 
                 if (isset($jsonResult['payUrl'])) {
-                    return redirect()->to($jsonResult['payUrl']);
+                    return $jsonResult['payUrl'];
                 } else {
                     // Handle the error case
                     return redirect()->back()->with('error', 'Unable to create MoMo payment. Please try again.');
