@@ -31,7 +31,10 @@ class ProductController extends Controller
             'category',
             'productDetails.color',
             'productDetails.size',
-        ])->withCount('productDetails')->get();
+        ])->withCount('productDetails')
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
         return (new ProductCollection($products))
             ->response()
             ->setStatusCode(HttpResponse::HTTP_OK);
