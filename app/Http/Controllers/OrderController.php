@@ -174,7 +174,6 @@ class OrderController extends Controller
 
             try {
                 $result = $this->execPostRequest($endpoint, json_encode($data));
-                dd($result);
                 $jsonResult = json_decode($result, true);
 
                 if (isset($jsonResult['payUrl'])) {
