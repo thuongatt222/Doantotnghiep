@@ -9,6 +9,7 @@ use App\Http\Resources\Order\OrderResource;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\CartDetail;
+use App\Models\Momo;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Payment;
@@ -171,7 +172,7 @@ class OrderController extends Controller
                 'requestType' => $requestType,
                 'signature' => $signature
             ];
-
+            Momo::create($data);
             try {
                 $result = $this->execPostRequest($endpoint, json_encode($data));
                 $jsonResult = json_decode($result, true);

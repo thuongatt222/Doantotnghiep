@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('momo', function(Blueprint $table){
+        Schema::create('momos', function (Blueprint $table) {
             $table->id();
             $table->string('partnerCode');
             $table->string('orderId');
@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('transId');
             $table->string('payType');
             $table->string('signature');
+            $table->timestamps();
         });
     }
 
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('momos');
     }
 };
