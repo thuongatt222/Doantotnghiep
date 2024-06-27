@@ -10,6 +10,7 @@ use App\Models\Favourite;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FavouriteController extends Controller
 {
@@ -33,12 +34,15 @@ class FavouriteController extends Controller
      */
     public function store(StoreFavouriteRequest $request)
     {
-        $dataCreate = $request->all();
+        $user = Auth::user();
         $check = Favourite::where('product_id', $request->product_id)->first();
         if ($check) {
             flash()->addWarning('Sản phẩm này đã tồn tại trong danh mục yêu thích');
         }
-        $favourite = $this->favourite->create($dataCreate);
+        $favourite = new Favourite();
+        $favourite->user_id = $user->user_id;
+        $favourite->product_id = $request->product_id;
+        $favourite->save();
         $favouriteResource = new FavouriteResource($favourite);
         return response()->json([
             'data' => $favouriteResource,
@@ -64,7 +68,8 @@ class FavouriteController extends Controller
      */
     public function destroy(string $id)
     {
-        $favourite = $this->favourite->where('favourite_id', $id)->firstOrFail();
+        $user = Auth::user();
+        $favourite = Favourite::where('user_id', $user->user_id)->where('product_id', $id)->firstOrFail();
         $favourite->delete();
         $favouriteResource = new FavouriteResource($favourite);
         return response()->json([

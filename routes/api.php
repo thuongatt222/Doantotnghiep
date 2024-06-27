@@ -54,10 +54,9 @@ Route::group(['middleware' => 'cors'], function () {
     Route::apiResource('shipping', ShippingController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('productdetail', ProductDetailController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('voucher', VoucherController::class)->only('index', 'store', 'update', 'destroy', 'show');
-    Route::apiResource('favourite', FavouriteController::class)->only('index', 'store', 'destroy');
     Route::apiResource('library', PictureLibraryController::class)->only('index', 'store', 'destroy', 'show');
     Route::get('verify/{id}', [AccountController::class, 'verifyEmail'])->name('account.verify');
-    
+
     Route::get('get-profit', [OrderController::class, 'getMonthlyProfit']);
     Route::get('best-selling', [ProductDetailController::class, 'topSellingProducts']);
     Route::group([
@@ -77,6 +76,7 @@ Route::group(['middleware' => 'cors'], function () {
         Route::apiResource('order', OrderController::class)->only('index', 'store', 'update', 'destroy', 'show');
         Route::post('order/display-by-user', [OrderController::class, 'display_user']);
         Route::apiResource('cart', CartController::class)->only('index', 'store', 'update', 'destroy', 'show');
+        Route::apiResource('favourite', FavouriteController::class)->only('index', 'store', 'destroy');
         Route::post('add-to-cart', [CartController::class, 'cart']);
         Route::post('password/change', [AccountController::class, 'changePassword']);
     });
