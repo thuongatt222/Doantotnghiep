@@ -14,4 +14,7 @@ class Favourite extends Model
     ];
     protected $primaryKey = 'favourite_id';
     protected $table = 'favourite';
+    public function product(){
+        return $this->belongsTo(Product::class, 'product_id', "product_id");
+    }
 }
