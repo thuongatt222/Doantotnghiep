@@ -24,8 +24,8 @@ class FavouriteController extends Controller
      */
     public function index()
     {
-       
-        $favouritesResource = Favourite::all();
+        $user = Auth::user();
+        $favouritesResource = Favourite::where('user_id', $user->user_id)->get();
         return new FavouriteCollection($favouritesResource);
     }
 
