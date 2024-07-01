@@ -10,6 +10,7 @@ use App\Models\Review;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ReviewController extends Controller
 {
@@ -35,8 +36,13 @@ class ReviewController extends Controller
      */
     public function store(StoreReviewRequest $request)
     {
-        $dataCreate = $request->all();
-        $review = $this->review->create($dataCreate);
+        $review = new Review();
+        $review->review = $request->review;
+        $review->evaluation = $request->evaluation;
+        $review->product_id = $request->product_id;
+        $user = Auth::user();
+        $review->user_id = $user->user_id;
+        $review->save();
         $reviewResource = new ReviewResource($review);
         return response()->json([
             'data' => $reviewResource,

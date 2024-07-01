@@ -5,6 +5,7 @@ namespace App\Http\Resources\Product;
 use App\Http\Resources\Brand\BrandResource;
 use App\Http\Resources\Category\CategoryResource;
 use App\Http\Resources\ProductDetail\ProductDetailResource;
+use App\Http\Resources\Review\ReviewResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -27,6 +28,7 @@ class ProductResource extends JsonResource
             'brand' => new BrandResource($this->whenLoaded('brand')),
             'category' => new CategoryResource($this->whenLoaded('category')),
             'product_details' => ProductDetailResource::collection($this->whenLoaded('productDetails')),
+            'reviews' => ReviewResource::collection($this->whenLoaded('reviews')),
             'total_quantity' => $this->total_quantity,
         ];
     }

@@ -28,7 +28,6 @@ class StoreReviewRequest extends FormRequest
             'review' => 'required',
             'evaluation' => 'required',
             'product_id' => 'required',
-            'user_id' => 'required',
         ];
     }
     protected function failedValidation(Validator $validator)

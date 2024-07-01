@@ -14,11 +14,13 @@ use App\Http\Controllers\PictureLibraryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductDetailController;
 use App\Http\Controllers\PusherController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\SizeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Resources\SizeConllection;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -76,6 +78,7 @@ Route::group(['middleware' => 'cors'], function () {
         Route::apiResource('order', OrderController::class)->only('index', 'store', 'update', 'destroy', 'show');
         Route::post('order/display-by-user', [OrderController::class, 'display_user']);
         Route::apiResource('cart', CartController::class)->only('index', 'store', 'update', 'destroy', 'show');
+        Route::apiResource('review', ReviewController::class)->only('index', 'store', 'update', 'destroy', 'show');
         Route::apiResource('favourite', FavouriteController::class)->only('index', 'store', 'destroy');
         Route::post('add-to-cart', [CartController::class, 'cart']);
         Route::post('password/change', [AccountController::class, 'changePassword']);

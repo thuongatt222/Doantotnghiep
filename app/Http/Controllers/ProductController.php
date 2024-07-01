@@ -85,6 +85,7 @@ class ProductController extends Controller
                 'category',
                 'productDetails.color',
                 'productDetails.size',
+                'reviews',
             ])->withCount('productDetails')->findOrFail($id);
 
             return (new ProductResource($product))
