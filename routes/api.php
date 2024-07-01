@@ -60,6 +60,7 @@ Route::group(['middleware' => 'cors'], function () {
     Route::get('verify/{id}', [AccountController::class, 'verifyEmail'])->name('account.verify');
     Route::get('get-profit', [OrderController::class, 'getMonthlyProfit']);
     Route::get('report', [OrderController::class, 'report']);
+    Route::get('review', [ReviewController::class, 'index']);
     Route::get('best-selling', [ProductDetailController::class, 'topSellingProducts']);
     Route::group([
 
@@ -78,7 +79,7 @@ Route::group(['middleware' => 'cors'], function () {
         Route::apiResource('order', OrderController::class)->only('index', 'store', 'update', 'destroy', 'show');
         Route::post('order/display-by-user', [OrderController::class, 'display_user']);
         Route::apiResource('cart', CartController::class)->only('index', 'store', 'update', 'destroy', 'show');
-        Route::apiResource('review', ReviewController::class)->only('index', 'store', 'update', 'destroy', 'show');
+        Route::apiResource('review', ReviewController::class)->only('store', 'update', 'destroy', 'show');
         Route::apiResource('favourite', FavouriteController::class)->only('index', 'store', 'destroy');
         Route::post('add-to-cart', [CartController::class, 'cart']);
         Route::post('password/change', [AccountController::class, 'changePassword']);
