@@ -56,10 +56,6 @@ Route::group(['middleware' => 'cors'], function () {
     Route::apiResource('voucher', VoucherController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('library', PictureLibraryController::class)->only('index', 'store', 'destroy', 'show');
     Route::get('verify/{id}', [AccountController::class, 'verifyEmail'])->name('account.verify');
-<<<<<<< HEAD
-
-=======
->>>>>>> a3c3cc8 (1/7)
     Route::get('get-profit', [OrderController::class, 'getMonthlyProfit']);
     Route::get('report', [OrderController::class, 'report']);
     Route::get('best-selling', [ProductDetailController::class, 'topSellingProducts']);
