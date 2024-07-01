@@ -41,7 +41,7 @@ class VoucherController extends Controller
             ], HttpResponse::HTTP_CONFLICT);
         }
         $voucher = new Voucher();
-        $voucher->voucher = $dataCreate['voucher'];
+        $voucher->voucher = $dataCreate['voucher']; // vd: 20%
         $voucher->voucher_code = $dataCreate['voucher_code'];
         $voucher->quantity = $dataCreate['quantity'];
         $voucher->start_day = $dataCreate['start_day'];

@@ -13,6 +13,7 @@ use App\Models\Momo;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Payment;
+use App\Models\User;
 use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Http\Response as HttpResponse;
@@ -92,6 +93,10 @@ class OrderController extends Controller
 
         // Calculate total price
         $totalPrice = $cartDetails->sum(function ($detail) {
+            if(isset($detail->productDetail->product->discount)){
+                $temp = $detail->productDetail->product->price * ($detail->productDetail->product->discount / 100);
+                return $detail->quantity * ($detail->productDetail->product->price - $temp);
+            }
             return $detail->quantity * $detail->productDetail->product->price;
         });
 
@@ -113,7 +118,7 @@ class OrderController extends Controller
         }
         if ($orderData['voucher_code']) {
             $voucher = Voucher::where('voucher_code', $orderData['voucher_code'])->first();
-            $orderData['total'] = $totalPrice * $voucher->voucher;
+            $orderData['total'] = $totalPrice * ($voucher->voucher / 100);
             $orderData['voucher_id'] = $voucher->voucher_id;
         }
         $orderData['total'] = $totalPrice;
@@ -322,5 +327,33 @@ class OrderController extends Controller
         //close connection
         curl_close($ch);
         return $result;
+    }
+    public function report()
+    {
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        // Lấy sô lợi nhuận trong tháng
+        $profit = Order::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->sum('total'); // Assuming there's a 'profit' column in orders table
+
+        // Số đơn hàng trong tháng
+        $ordersCount = Order::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count();
+
+        // Người dùng mới trong tháng
+        $newUsersCount = User::whereBetween('created_at', [$startOfMonth, $endOfMonth])->count();
+
+        // Hóa đơn chờ duyệt
+        $pendingInvoicesCount = Order::where('status', 1)->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'monthly_profit' => $profit,
+                'orders_count' => $ordersCount,
+                'new_users_count' => $newUsersCount,
+                'pending_invoices_count' => $pendingInvoicesCount,
+            ],
+        ], 200);
     }
 }
