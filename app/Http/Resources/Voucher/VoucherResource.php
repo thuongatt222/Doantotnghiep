@@ -17,6 +17,7 @@ class VoucherResource extends JsonResource
         return [
             'voucher_id' => $this->voucher_id,
             'voucher' => $this->voucher,
+            'voucher_code' => $this->voucher_code,
             'quantity' => $this->quantity,
             'start_day' => $this->start_day,
             'end_day' => $this->end_day,

@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             SizeSeeder::class,
             BrandSeeder::class,
             CategorySeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

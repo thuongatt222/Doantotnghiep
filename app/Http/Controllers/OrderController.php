@@ -177,7 +177,6 @@ class OrderController extends Controller
                 'requestType' => $requestType,
                 'signature' => $signature
             ];
-            Momo::create($data);
             try {
                 $result = $this->execPostRequest($endpoint, json_encode($data));
                 $jsonResult = json_decode($result, true);
@@ -194,8 +193,7 @@ class OrderController extends Controller
             }
         }
         // Return the order resource
-        $orderResource = new OrderResource($order);
-        return response()->json(['data' => $orderResource], HttpResponse::HTTP_OK);
+        return response()->json(['data' => "/"], HttpResponse::HTTP_OK);
     }
     /**
      * Display the specified resource.
