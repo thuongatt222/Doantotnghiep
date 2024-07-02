@@ -93,11 +93,10 @@ class OrderController extends Controller
 
         // Calculate total price
         $totalPrice = $cartDetails->sum(function ($detail) {
-            if(isset($detail->productDetail->product->discount)){
-                $temp = $detail->productDetail->product->price * ($detail->productDetail->product->discount / 100);
-                return $detail->quantity * ($detail->productDetail->product->price - $temp);
-            }
-            return $detail->quantity * $detail->productDetail->product->price;
+            $price = $detail->productDetail->product->price;
+            $discount = $detail->productDetail->product->discount ?? 0;
+            $discountedPrice = $price - ($price * ($discount / 100));
+            return $detail->quantity * $discountedPrice;
         });
 
         // Create the order
@@ -116,13 +115,18 @@ class OrderController extends Controller
         } else {
             $orderData['user_id'] = $userId;
         }
-        if ($orderData['voucher_code']) {
+        if (!empty($orderData['voucher_code'])) {
             $voucher = Voucher::where('voucher_code', $orderData['voucher_code'])->first();
-            $orderData['total'] = $totalPrice * ($voucher->voucher / 100);
-            $orderData['voucher_id'] = $voucher->voucher_id;
+            if ($voucher) {
+                $totalPrice = $totalPrice - ($totalPrice * ($voucher->voucher / 100) );
+                $orderData['voucher_id'] = $voucher->voucher_id;
+            } else {
+                return response()->json(['error' => 'Invalid voucher code.'], HttpResponse::HTTP_BAD_REQUEST);
+            }
+        } else {
+            $orderData['voucher_id'] = null;
         }
         $orderData['total'] = $totalPrice;
-        $orderData['voucher_id'] = null;
         $orderData['shipping_code'] = $request['shipping_code'] ?? null;
         $orderData['status'] = 1;
 
@@ -130,7 +134,7 @@ class OrderController extends Controller
 
         // Create order details
         foreach ($cartDetails as $detail) {
-            $productDetail = $detail->productDetail; // Eager load product detail to avoid N+1 problem
+            $productDetail = $detail->productDetail; 
             $product = $productDetail->product;
 
             OrderDetail::create([
@@ -139,58 +143,14 @@ class OrderController extends Controller
                 'quantity' => $detail->quantity,
                 'price' => $product->price,
             ]);
+            $detail->productDetail->decrement('quantity', $detail->quantity);
         }
 
         // Clear the cart
         CartDetail::where('cart_id', $cart->cart_id)->delete();
         $payment = Payment::where('payment_method_id', $order->payment_method_id)->first();
         if ($payment->payment_method == 'Momo') {
-            $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
-            $partnerCode = env('MOMO_PARTNER_CODE', 'MOMOBKUN20180529');
-            $accessKey = env('MOMO_ACCESS_KEY', 'klm05TvNBzhg7h7j');
-            $secretKey = env('MOMO_SECRET_KEY', 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa');
-            $orderInfo = "Thanh toán qua MoMo";
-            $amount = $order->total;
-            $orderId = $order->order_id . '_' . time();
-            $redirectUrl = env('URL_CUSTOMER') . "/order";
-            $ipnUrl = env('URL_CUSTOMER') . "/order";
-            $requestId = time() . "";
-            $requestType = "payWithATM";
-            $extraData = "";
-
-            // Before signing HMAC SHA256 signature
-            $rawHash = "accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType";
-            $signature = hash_hmac("sha256", $rawHash, $secretKey);
-            
-            $data = [
-                'partnerCode' => $partnerCode,
-                'partnerName' => "Test",
-                "storeId" => "MomoTestStore",
-                'requestId' => $requestId,
-                'amount' => $amount,
-                'orderId' => $orderId,
-                'orderInfo' => $orderInfo,
-                'redirectUrl' => $redirectUrl,
-                'ipnUrl' => $ipnUrl,
-                'lang' => 'vi',
-                'extraData' => $extraData,
-                'requestType' => $requestType,
-                'signature' => $signature
-            ];
-            try {
-                $result = $this->execPostRequest($endpoint, json_encode($data));
-                $jsonResult = json_decode($result, true);
-
-                if (isset($jsonResult['payUrl'])) {
-                    return $jsonResult['payUrl'];
-                } else {
-                    // Handle the error case
-                    return response()->json('error', 'Unable to create MoMo payment. Please try again.');
-                }
-            } catch (\Exception $e) {
-                // Handle the exception case
-                return response()->json('error', 'An error occurred while processing your request. Please try again.');
-            }
+            return $this->processMomoPayment($order);
         }
         // Return the order resource
         return response()->json(['data' => "/"], HttpResponse::HTTP_OK);
@@ -353,5 +313,54 @@ class OrderController extends Controller
                 'pending_invoices_count' => $pendingInvoicesCount,
             ],
         ], 200);
+    }
+    private function processMomoPayment($order)
+    {
+        $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
+        $partnerCode = env('MOMO_PARTNER_CODE', 'MOMOBKUN20180529');
+        $accessKey = env('MOMO_ACCESS_KEY', 'klm05TvNBzhg7h7j');
+        $secretKey = env('MOMO_SECRET_KEY', 'at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa');
+        $orderInfo = "Thanh toán qua MoMo";
+        $amount = $order->total;
+        $orderId = $order->order_id . '_' . time();
+        $redirectUrl = env('URL_CUSTOMER') . "/order";
+        $ipnUrl = env('URL_CUSTOMER') . "/order";
+        $requestId = time() . "";
+        $requestType = "payWithATM";
+        $extraData = "";
+
+        // Before signing HMAC SHA256 signature
+        $rawHash = "accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType";
+        $signature = hash_hmac("sha256", $rawHash, $secretKey);
+
+        $data = [
+            'partnerCode' => $partnerCode,
+            'partnerName' => "Test",
+            "storeId" => "MomoTestStore",
+            'requestId' => $requestId,
+            'amount' => $amount,
+            'orderId' => $orderId,
+            'orderInfo' => $orderInfo,
+            'redirectUrl' => $redirectUrl,
+            'ipnUrl' => $ipnUrl,
+            'lang' => 'vi',
+            'extraData' => $extraData,
+            'requestType' => $requestType,
+            'signature' => $signature
+        ];
+        try {
+            $result = $this->execPostRequest($endpoint, json_encode($data));
+            $jsonResult = json_decode($result, true);
+
+            if (isset($jsonResult['payUrl'])) {
+                return $jsonResult['payUrl'];
+            } else {
+                // Handle the error case
+                return response()->json('error', 'Unable to create MoMo payment. Please try again.');
+            }
+        } catch (\Exception $e) {
+            // Handle the exception case
+            return response()->json('error', 'An error occurred while processing your request. Please try again.');
+        }
     }
 }
