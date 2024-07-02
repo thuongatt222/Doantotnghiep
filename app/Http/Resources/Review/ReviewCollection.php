@@ -15,7 +15,19 @@ class ReviewCollection extends ResourceCollection
     public function toArray(Request $request): array
     {
         return [
-            'data' => $this->collection,
+            'data' => $this->collection->map(function($review) {
+                return [
+                    'review_id' => $review->review_id,
+                    'review' => $review->review,
+                    'evaluation' => $review->evaluation,
+                    'product_id' => $review->product_id,
+                    'user' =>  $review->user ? [
+                        'id' => $review->user->user_id,
+                        'name' => $review->user->name,
+                        'avatar' => $review->user->avatar,
+                    ] : null,
+                ];
+            }),
         ];
     }
 }

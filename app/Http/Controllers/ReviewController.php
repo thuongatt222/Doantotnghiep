@@ -25,7 +25,7 @@ class ReviewController extends Controller
     public function index()
     {
         
-        $reviewResource = Review::all();
+        $reviewResource = Review::with('user')->orderBy('review', 'DESC')->get();
         return (new ReviewCollection($reviewResource))
                 ->response()
                 ->setStatusCode(HttpResponse::HTTP_OK);
