@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('voucher', function (Blueprint $table) {
             $table->id('voucher_id');
             $table->text('voucher_code');
-            $table->text('voucher');
+            $table->integer('voucher');
             $table->integer('quantity');
             $table->datetime('start_day');
             $table->datetime('end_day');

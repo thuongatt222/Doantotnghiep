@@ -99,6 +99,13 @@ class OrderController extends Controller
             return $detail->quantity * $discountedPrice;
         });
 
+        foreach ($cartDetails as $detail) {
+            $productDetail = $detail->productDetail;
+            if ($detail->quantity > $productDetail->quantity) {
+                return response()->json(['error' => 'Insufficient stock for product: ' . $productDetail->product->name], HttpResponse::HTTP_BAD_REQUEST);
+            }
+        }
+
         // Create the order
         $orderData = $request->only([
             'address',
@@ -118,7 +125,7 @@ class OrderController extends Controller
         if (!empty($orderData['voucher_code'])) {
             $voucher = Voucher::where('voucher_code', $orderData['voucher_code'])->first();
             if ($voucher) {
-                $totalPrice = $totalPrice - ($totalPrice * ($voucher->voucher / 100) );
+                $totalPrice = $totalPrice - ($totalPrice * ($voucher->voucher / 100));
                 $orderData['voucher_id'] = $voucher->voucher_id;
             } else {
                 return response()->json(['error' => 'Invalid voucher code.'], HttpResponse::HTTP_BAD_REQUEST);
@@ -134,7 +141,7 @@ class OrderController extends Controller
 
         // Create order details
         foreach ($cartDetails as $detail) {
-            $productDetail = $detail->productDetail; 
+            $productDetail = $detail->productDetail;
             $product = $productDetail->product;
 
             OrderDetail::create([
@@ -323,8 +330,8 @@ class OrderController extends Controller
         $orderInfo = "Thanh toán qua MoMo";
         $amount = $order->total;
         $orderId = $order->order_id . '_' . time();
-        $redirectUrl = env('URL_CUSTOMER') . "/order";
-        $ipnUrl = env('URL_CUSTOMER') . "/order";
+        $redirectUrl = env('APP_URL') . "/momo/callback";
+        $ipnUrl = env('APP_URL') . "/momo/callback";
         $requestId = time() . "";
         $requestType = "payWithATM";
         $extraData = "";
@@ -351,7 +358,6 @@ class OrderController extends Controller
         try {
             $result = $this->execPostRequest($endpoint, json_encode($data));
             $jsonResult = json_decode($result, true);
-
             if (isset($jsonResult['payUrl'])) {
                 return $jsonResult['payUrl'];
             } else {
@@ -361,6 +367,41 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             // Handle the exception case
             return response()->json('error', 'An error occurred while processing your request. Please try again.');
+        }
+    }
+    public function handleMomoCallback(Request $request)
+    {
+        $partnerCode = $request->input('partnerCode');
+        $orderId = $request->input('orderId');
+        $requestId = $request->input('requestId');
+        $amount = $request->input('amount');
+        $orderInfo = $request->input('orderInfo');
+        $orderType = $request->input('orderType');
+        $transId = $request->input('transId');
+        $resultCode = $request->input('resultCode');
+        $message = $request->input('message');
+        $payType = $request->input('payType');
+        $responseTime = $request->input('responseTime');
+        $extraData = $request->input('extraData');
+        $signature = $request->input('signature');
+
+        if ($resultCode == 0) {
+            // Payment was successful
+            Momo::create([
+                'partnerCode' => $partnerCode,
+                'orderId' => $orderId,
+                'requestId' => $requestId,
+                'amount' => $amount,
+                'orderInfo' => $orderInfo,
+                'orderType' => $orderType,
+                'transId' => $transId,
+                'payType' => $payType,
+                'signature' => $signature,
+            ]);
+            return response()->json(['message' => 'Payment successful and data saved.'], 200);
+        } else {
+            // Handle the payment failure case
+            return response()->json(['message' => 'Payment failed or was cancelled.'], 400);
         }
     }
 }
