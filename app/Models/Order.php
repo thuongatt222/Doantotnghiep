@@ -13,6 +13,7 @@ class Order extends Model
         'name',
         'phone_number',
         'status',
+        'payment_status',
         'total',
         'payment_method_id',
         'shipping_method_id',

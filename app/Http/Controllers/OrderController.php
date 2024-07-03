@@ -136,6 +136,7 @@ class OrderController extends Controller
         $orderData['total'] = $totalPrice;
         $orderData['shipping_code'] = $request['shipping_code'] ?? null;
         $orderData['status'] = 1;
+        $orderData['payment_status'] = 0;
 
         $order = Order::create($orderData);
 
@@ -201,7 +202,7 @@ class OrderController extends Controller
 
             // Ensure only the status field is updated and set employee_id
             $dataUpdate = [
-                'shipping_code' => $request->input('shipping_code'),
+                'shipping_code' => $request->input('shipping_code') ?? null,
                 'status' => $request->input('status'),
                 'employee_id' => $user->user_id,
             ];
@@ -398,10 +399,20 @@ class OrderController extends Controller
                 'payType' => $payType,
                 'signature' => $signature,
             ]);
-            return response()->json(['message' => 'Payment successful and data saved.'], 200);
+            list($order_id,) = explode('_', $orderId);
+            $order = Order::find($order_id);
+            if ($order) {
+                $order->update(['payment_status' => 1]);
+            }
+            return redirect()->to(env('URL_CUSTOMER').'/order');
         } else {
             // Handle the payment failure case
             return response()->json(['message' => 'Payment failed or was cancelled.'], 400);
         }
+    }
+    public function payment(String $id){
+        $order = Order::where('order_id', $id)->firstOrFail();
+        
+        return $this->processMomoPayment($order);
     }
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone_number');
             $table->integer('status');
+            $table->integer('payment_status');
             $table->string('shipping_code')->nullable();
             $table->double('total');
             $table->unsignedBigInteger('payment_method_id');

@@ -60,6 +60,7 @@ Route::group(['middleware' => 'cors'], function () {
     Route::get('verify/{id}', [AccountController::class, 'verifyEmail'])->name('account.verify');
     Route::get('get-profit', [OrderController::class, 'getMonthlyProfit']);
     Route::get('report', [OrderController::class, 'report']);
+    Route::post('payment_status/{id}', [OrderController::class, 'payment']);
     Route::get('review', [ReviewController::class, 'index']);
     Route::get('best-selling', [ProductDetailController::class, 'topSellingProducts']);
     Route::group([
