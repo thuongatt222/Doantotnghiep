@@ -22,6 +22,7 @@ class ProductDetailResource extends JsonResource
             'color' => new ColorResource($this->whenLoaded('color')),
             'size' => new SizeResource($this->whenLoaded('size')),
             'quantity' => $this->quantity,
+            'status' => $this->status,
         ];
     }
 }
