@@ -200,8 +200,14 @@ class OrderController extends Controller
             // Get the currently authenticated user
             $user = Auth::user();
 
+            $payment_status = 0;
+            if($request->input('status') == 4){
+                $payment_status = 1;
+            }
+
             // Ensure only the status field is updated and set employee_id
             $dataUpdate = [
+                'payment_status' => $payment_status,
                 'shipping_code' => $request->input('shipping_code') ?? null,
                 'status' => $request->input('status'),
                 'employee_id' => $user->user_id,
@@ -404,7 +410,7 @@ class OrderController extends Controller
             if ($order) {
                 $order->update(['payment_status' => 1]);
             }
-            return redirect()->to(env('URL_CUSTOMER').'/order');
+            return redirect()->to(env('URL_CUSTOMER').'order');
         } else {
             // Handle the payment failure case
             return response()->json(['message' => 'Payment failed or was cancelled.'], 400);
