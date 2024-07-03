@@ -23,6 +23,7 @@ class OrderCollection extends ResourceCollection
                     'address' => $order->address,
                     'phone_number' => $order->phone_number,
                     'status' => $order->status,
+                    'payment_status' => $order->payment_status,
                     'total' => $order->total,
                     'user_id' => $order->user_id,
                     'employee_id' => $order->employee_id,
