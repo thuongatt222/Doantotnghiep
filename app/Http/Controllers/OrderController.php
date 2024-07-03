@@ -40,7 +40,7 @@ class OrderController extends Controller
             'orderDetails.productDetail.product',
             'shipping',
             'payment'
-        ])->get();
+        ])->orderBy('created_at', 'DESC')->get();
         return (new OrderCollection($orders))
             ->response()
             ->setStatusCode(HttpResponse::HTTP_OK);
@@ -58,7 +58,7 @@ class OrderController extends Controller
                 'orderDetails.productDetail.product',
                 'shipping',
                 'payment'
-            ])->where('user_id', $user->user_id)->get();
+            ])->where('user_id', $user->user_id)->orderBy('created_at', 'DESC')->get();
 
             return (new OrderCollection($orders))
                 ->response()
@@ -418,7 +418,6 @@ class OrderController extends Controller
     }
     public function payment(String $id){
         $order = Order::where('order_id', $id)->firstOrFail();
-        
         return $this->processMomoPayment($order);
     }
 }
