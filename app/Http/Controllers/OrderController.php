@@ -137,7 +137,11 @@ class OrderController extends Controller
         $orderData['shipping_code'] = $request['shipping_code'] ?? null;
         $orderData['status'] = 1;
         $orderData['payment_status'] = 0;
-
+        if ($user->address == null) {
+            $user->address = $request['address'];
+            $user->phone = $request['phone_number'];
+            $user->save();
+        }
         $order = Order::create($orderData);
 
         // Create order details
@@ -161,7 +165,7 @@ class OrderController extends Controller
             return $this->processMomoPayment($order);
         }
         // Return the order resource
-        return redirect()->to(env('URL_CUSTOMER').'order');
+        return redirect()->to(env('URL_CUSTOMER') . 'order');
     }
     /**
      * Display the specified resource.
@@ -201,7 +205,7 @@ class OrderController extends Controller
             $user = Auth::user();
 
             $payment_status = 0;
-            if($request->input('status') == 4){
+            if ($request->input('status') == 4) {
                 $payment_status = 1;
             }
 
@@ -410,13 +414,14 @@ class OrderController extends Controller
             if ($order) {
                 $order->update(['payment_status' => 1]);
             }
-            return redirect()->to(env('URL_CUSTOMER').'order');
+            return redirect()->to(env('URL_CUSTOMER') . 'order');
         } else {
             // Handle the payment failure case
             return response()->json(['message' => 'Payment failed or was cancelled.'], 400);
         }
     }
-    public function payment(String $id){
+    public function payment(String $id)
+    {
         $order = Order::where('order_id', $id)->firstOrFail();
         return $this->processMomoPayment($order);
     }
