@@ -136,11 +136,16 @@ class CartController extends Controller
 
         foreach ($productDetails as $detail) {
             $productDetailId = $detail['product_detail_id'];
-            $quantity = $detail['quantity'] ?? 1;
+            $quantity = $detail['quantity'];
 
             try {
                 // Find the product detail
                 $productDetail = ProductDetail::findOrFail($productDetailId);
+                if ($productDetail->quantity < $quantity) {
+                    return response()->json([
+                        'error' => "Product detail with ID $productDetailId does not have enough stock.",
+                    ], HttpResponse::HTTP_BAD_REQUEST);
+                }
             } catch (ModelNotFoundException $e) {
                 return response()->json([
                     'error' => "Product detail with ID $productDetailId not found.",

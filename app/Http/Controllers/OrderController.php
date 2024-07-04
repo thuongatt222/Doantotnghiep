@@ -165,7 +165,7 @@ class OrderController extends Controller
             return $this->processMomoPayment($order);
         }
         // Return the order resource
-        return redirect()->to(env('URL_CUSTOMER') . 'order');
+        return response()->json('Success');
     }
     /**
      * Display the specified resource.
