@@ -125,14 +125,23 @@ class OrderController extends Controller
         if (!empty($orderData['voucher_code'])) {
             $voucher = Voucher::where('voucher_code', $orderData['voucher_code'])->first();
             if ($voucher) {
-                $totalPrice = $totalPrice - ($totalPrice * ($voucher->voucher / 100));
-                $orderData['voucher_id'] = $voucher->voucher_id;
+                if ($voucher->start_day <= now() && $voucher->end_day >= now()) {
+                    if ($voucher->quantity > 0) {
+                        $totalPrice = $totalPrice - ($totalPrice * ($voucher->voucher / 100));
+                        $orderData['voucher_id'] = $voucher->voucher_id;
+                        $voucher->decrement('quantity');
+                    } else {
+                        return response()->json(['error' => 'Voucher is out of stock.'], HttpResponse::HTTP_BAD_REQUEST);
+                    }
+                } else {
+                    return response()->json(['error' => 'Voucher is not valid at this time.'], HttpResponse::HTTP_BAD_REQUEST);
+                }
             } else {
                 return response()->json(['error' => 'Invalid voucher code.'], HttpResponse::HTTP_BAD_REQUEST);
             }
         } else {
             $orderData['voucher_id'] = null;
-        }
+        }        
         $orderData['total'] = $totalPrice;
         $orderData['shipping_code'] = $request['shipping_code'] ?? null;
         $orderData['status'] = 1;
