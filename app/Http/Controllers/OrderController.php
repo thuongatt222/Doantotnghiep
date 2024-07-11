@@ -213,7 +213,7 @@ class OrderController extends Controller
             // Get the currently authenticated user
             $user = Auth::user();
 
-            $payment_status = 0;
+            // $payment_status = 0;
             if ($request->input('status') == 4) {
                 $payment_status = 1;
             }
