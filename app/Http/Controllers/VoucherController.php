@@ -34,7 +34,7 @@ class VoucherController extends Controller
     public function store(StoreVoucherRequest $request)
     {
         $dataCreate = $request->all();
-        $check = Voucher::where('voucher', $dataCreate['voucher'])->exists();
+        $check = Voucher::where('voucher_code', $dataCreate['voucher_code'])->exists();
         if ($check) {
             return response()->json([
                 'error' => 'Voucher này đã tồn tại!'
