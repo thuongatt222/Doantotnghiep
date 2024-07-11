@@ -217,7 +217,7 @@ class OrderController extends Controller
             if ($request->input('status') == 4) {
                 $payment_status = 1;
             }
-            if ($order->status >= 2) {
+            if ($order->status >= 1) {
                 // Ensure only the status field is updated and set employee_id
                 $dataUpdate = [
                     'payment_status' => $payment_status,
