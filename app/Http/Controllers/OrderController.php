@@ -243,7 +243,7 @@ class OrderController extends Controller
             } else {
                 // Ensure only the status field is updated and set employee_id
                 $dataUpdate = [
-                    'payment_status' => $payment_status,
+                    'payment_status' => $request->input('payment_status'),
                     'shipping_code' => $request->input('shipping_code') ?? null,
                     'status' => $request->input('status'),
                     'employee_id' => $user->user_id,
