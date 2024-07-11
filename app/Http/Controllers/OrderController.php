@@ -216,6 +216,21 @@ class OrderController extends Controller
             // $payment_status = 0;
             if ($request->input('status') == 4) {
                 $payment_status = 1;
+                $dataUpdate = [
+                    'payment_status' => $payment_status,
+                    'shipping_code' => $request->input('shipping_code') ?? null,
+                    'status' => $request->input('status'),
+                    'employee_id' => $user->user_id,
+                ];
+
+                // Update the order
+                $order->update($dataUpdate);
+
+                // Transform the updated order
+                $orderResource = new OrderResource($order);
+
+                // Return the updated order with HTTP OK status
+                return $orderResource->response()->setStatusCode(HttpResponse::HTTP_OK);
             }
             if ($request->input('status') == 0) {
                 if ($order->status < 2) {
