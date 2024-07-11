@@ -141,7 +141,7 @@ class OrderController extends Controller
             }
         } else {
             $orderData['voucher_id'] = null;
-        }        
+        }
         $orderData['total'] = $totalPrice;
         $orderData['shipping_code'] = $request['shipping_code'] ?? null;
         $orderData['status'] = 1;
@@ -217,23 +217,28 @@ class OrderController extends Controller
             if ($request->input('status') == 4) {
                 $payment_status = 1;
             }
+            if ($order->status >= 2) {
+                // Ensure only the status field is updated and set employee_id
+                $dataUpdate = [
+                    'payment_status' => $payment_status,
+                    'shipping_code' => $request->input('shipping_code') ?? null,
+                    'status' => $request->input('status'),
+                    'employee_id' => $user->user_id,
+                ];
 
-            // Ensure only the status field is updated and set employee_id
-            $dataUpdate = [
-                'payment_status' => $payment_status,
-                'shipping_code' => $request->input('shipping_code') ?? null,
-                'status' => $request->input('status'),
-                'employee_id' => $user->user_id,
-            ];
+                // Update the order
+                $order->update($dataUpdate);
 
-            // Update the order
-            $order->update($dataUpdate);
+                // Transform the updated order
+                $orderResource = new OrderResource($order);
 
-            // Transform the updated order
-            $orderResource = new OrderResource($order);
-
-            // Return the updated order with HTTP OK status
-            return $orderResource->response()->setStatusCode(HttpResponse::HTTP_OK);
+                // Return the updated order with HTTP OK status
+                return $orderResource->response()->setStatusCode(HttpResponse::HTTP_OK);
+            }else{
+                return response()->json([
+                    'error' => 'Không hủy được đơn hàng với trạng thái hiện tại',
+                ], HttpResponse::HTTP_BAD_REQUEST);
+            }
         } catch (ModelNotFoundException $e) {
             // Handle the case where the order is not found
             return response()->json([
