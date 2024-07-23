@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('product_id');
             $table->string('product_name');
             $table->integer('status');
-            $table->string('description');
+            $table->text('description');
             $table->double('price');
             $table->double('discount')->nullable();
             $table->text('image');
