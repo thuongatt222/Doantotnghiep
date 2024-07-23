@@ -86,7 +86,7 @@ class AccountController extends Controller
 
                 Auth::login($finduser);
 
-                return redirect()->intended('customer');
+                return redirect()->to(env('URL_CUSTOMER'));
             } else {
                 $newUser = User::updateOrCreate(['email' => $user->email], [
                     'name' => $user->name,
@@ -97,7 +97,7 @@ class AccountController extends Controller
                 ]);
 
                 Auth::login($newUser);
-                return redirect()->intended('customer');
+                return redirect()->to(env('URL_CUSTOMER'));
             }
         } catch (Exception $e) {
             dd($e->getMessage());

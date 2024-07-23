@@ -155,9 +155,6 @@ class ProductDetailController extends Controller
             ->orderByDesc('total_sold_quantity')
             ->limit(4)
             ->get();
-
-
-
         return response()->json([
             'data' => $topProducts,
         ], HttpResponse::HTTP_OK);
