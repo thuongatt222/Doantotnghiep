@@ -153,7 +153,7 @@ class ProductDetailController extends Controller
                 'product.image'
             )
             ->orderByDesc('total_sold_quantity')
-            ->limit(10)
+            ->limit(4)
             ->get();
 
 
