@@ -66,7 +66,8 @@ class AccountController extends Controller
         } else {
             return response()->json(['message' => 'Email đã được xác nhận.'], 400);
         }
-        return response()->json(['message' => 'Email xác nhận thành công!'], 200);
+        // return response()->json(['message' => 'Email xác nhận thành công!'], 200);
+        return redirect()->to(env('URL_CUSTOMER'));
     }
     // login with google
     public function redirectToGoogle()
