@@ -93,6 +93,7 @@ class AccountController extends Controller
                         'name' => $user->name,
                         'google_id' => $user->google_id,
                         'role' => 0,
+                        'status' => 1,
                         'avatar' => 'avatar.jpg',
                         'password' => encrypt('123456dummy')
                     ]
