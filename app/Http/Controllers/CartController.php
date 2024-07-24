@@ -159,7 +159,11 @@ class CartController extends Controller
             ]);
 
             // Update the quantity
-            $cartDetail->quantity = $quantity;
+            if ($cartDetail->exists) {
+                $cartDetail->quantity += $quantity;
+            } else {
+                $cartDetail->quantity = $quantity;
+            }
             $cartDetail->save();
 
             $cartData[] = [
