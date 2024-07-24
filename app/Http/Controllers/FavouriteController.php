@@ -37,8 +37,9 @@ class FavouriteController extends Controller
         $user = Auth::user();
         $check = Favourite::where('product_id', $request->product_id)->first();
         if ($check) {
-            flash()->addWarning('Sản phẩm này đã tồn tại trong danh mục yêu thích');
+            return response()->json('Sản phẩm này đã tồn tại trong danh mục yêu thích', HttpResponse::HTTP_BAD_REQUEST);
         }
+        dd($check);
         $favourite = new Favourite();
         $favourite->user_id = $user->user_id;
         $favourite->product_id = $request->product_id;
