@@ -77,30 +77,35 @@ class AccountController extends Controller
     public function handleGoogleCallback()
     {
         try {
-
             $user = Socialite::driver('google')->user();
 
-            $finduser = User::where('google_id', $user->google_id)->first();
+            $finduser = User::where('google_id', $user->id)->first();
 
             if ($finduser) {
-
                 Auth::login($finduser);
-
-                return redirect()->to(env('URL_CUSTOMER'));
             } else {
-                $newUser = User::updateOrCreate(['email' => $user->email], [
-                    'name' => $user->name,
-                    'google_id' => $user->google_id,
-                    'role' => 0,
-                    'avatar' => 'public/avatar.jpg',
-                    'password' => encrypt('123456dummy')
-                ]);
+                $newUser = User::updateOrCreate(
+                    ['email' => $user->email],
+                    [
+                        'name' => $user->name,
+                        'google_id' => $user->id,
+                        'role' => 0,
+                        'avatar' => 'public/avatar.jpg',
+                        'password' => encrypt('123456dummy')
+                    ]
+                );
 
                 Auth::login($newUser);
-                return redirect()->to(env('URL_CUSTOMER'));
             }
+
+            // Return Google access token and user data to the frontend
+            return response()->json([
+                'access_token' => $user->token,
+                'token_type' => 'Bearer',
+                'user' => Auth::user()
+            ]);
         } catch (Exception $e) {
-            dd($e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
     //login
