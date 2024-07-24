@@ -31,8 +31,7 @@ use Illuminate\Support\Facades\Route;
 //     Route::get('reset-password/{email}', [AccountController::class, 'reset_password'])->name('account.reset_password');
 //     Route::post('reset-password', [AccountController::class, 'check_reset_password']);
 // });
-// Route::get('auth/google', [AccountController::class, 'redirectToGoogle'])->name('auth.google');
-// Route::get('auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
+
 Route::get('/', function () {
     return view('formdata');
 });

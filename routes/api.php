@@ -46,6 +46,8 @@ Route::group(['middleware' => 'cors'], function () {
     //     Route::post('insert', [SizeController::class, 'store'])->name('size_insert');
     //     Route::post('destroy', [SizeController::class, 'destroy'])->name('size_destroy');
     // });
+    Route::get('auth/google', [AccountController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
     Route::apiResource('size', SizeController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('user', UserController::class)->only('index', 'store', 'update', 'destroy', 'show');
     Route::apiResource('brand', BrandController::class)->only('index', 'store', 'update', 'destroy', 'show');
