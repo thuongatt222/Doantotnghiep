@@ -39,7 +39,6 @@ class FavouriteController extends Controller
         if ($check) {
             return response()->json('Sản phẩm này đã tồn tại trong danh mục yêu thích', HttpResponse::HTTP_BAD_REQUEST);
         }
-        dd($check);
         $favourite = new Favourite();
         $favourite->user_id = $user->user_id;
         $favourite->product_id = $request->product_id;
