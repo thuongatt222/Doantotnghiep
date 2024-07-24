@@ -79,28 +79,32 @@ class AccountController extends Controller
         try {
             $user = Socialite::driver('google')->user();
 
+            // Check if the user already exists
             $finduser = User::where('google_id', $user->id)->first();
 
             if ($finduser) {
                 Auth::login($finduser);
+                $token = $finduser->createToken('authToken')->plainTextToken;
             } else {
+                // Create a new user
                 $newUser = User::updateOrCreate(
                     ['email' => $user->email],
                     [
                         'name' => $user->name,
-                        'google_id' => $user->id,
+                        'google_id' => $user->google_id,
                         'role' => 0,
-                        'avatar' => 'public/avatar.jpg',
+                        'avatar' => 'avatar.jpg',
                         'password' => encrypt('123456dummy')
                     ]
                 );
 
                 Auth::login($newUser);
+                $token = $newUser->createToken('authToken')->plainTextToken;
             }
 
-            // Return Google access token and user data to the frontend
+            // Return the token and user data to the frontend
             return response()->json([
-                'access_token' => $user->token,
+                'access_token' => $token,
                 'token_type' => 'Bearer',
                 'user' => Auth::user()
             ]);
@@ -108,6 +112,7 @@ class AccountController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
     //login
     public function login()
     {
