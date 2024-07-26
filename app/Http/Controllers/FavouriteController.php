@@ -35,7 +35,7 @@ class FavouriteController extends Controller
     public function store(StoreFavouriteRequest $request)
     {
         $user = Auth::user();
-        $check = Favourite::where('product_id', $request->product_id)->first();
+        $check = Favourite::where('product_id', $request->product_id)->where('user_id', $user->user_id)->first();
         if ($check) {
             return response()->json('Sản phẩm này đã tồn tại trong danh mục yêu thích', HttpResponse::HTTP_BAD_REQUEST);
         }
