@@ -16,6 +16,7 @@ Dự án này là một trang web thương mại điện tử được xây dự
 
 * Laravel Framework
 * PostgreSQL Database
+* HTML, JavaScript
 * Composer (quản lý thư viện PHP)
 * npm (quản lý thư viện JavaScript)
 
